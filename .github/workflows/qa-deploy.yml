@@ -1,0 +1,85 @@
+name: 🚀 Liyara Foreign Employment QA Frontend to Droplet
+
+on:
+  push:
+    branches:
+      - qa
+
+jobs:
+  deploy:
+    name: 🚀 Liyara Foreign Employment QA Frontend Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      # ✅ Checkout the repository
+      - name: 🛎️ Checkout code
+        uses: actions/checkout@v4
+
+      # ✅ Install Node.js
+      - name: ⚙️ Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # ✅ Install dependencies and build frontend
+      - name: 🧩 Install dependencies and build frontend
+        run: |
+          echo "📦 Installing dependencies..."
+          npm install
+          echo "🛠️ Building frontend for QA..."
+          npm run build:qa
+          echo "🗜️ Compressing frontend build..."
+          tar -czf frontend-dist.tar.gz dist
+
+      # ✅ Set up SSH agent
+      - name: 🔑 Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+
+      # ✅ Copy build to the VPS
+      - name: 📂 Copy Frontend Build to VPS
+        run: |
+          echo "🚚 Copying build to the server..."
+          scp -o StrictHostKeyChecking=no frontend-dist.tar.gz ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }}:/var/www/liyara-foreign-employment/qa/frontend
+
+      # ✅ Extract and Deploy Frontend on VPS
+      - name: 🚀 Deploy Frontend to VPS
+        run: |
+          echo "🔌 Connecting to server and deploying..."
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
+            set -e
+
+            echo "📁 Changing directory to frontend..."
+            cd /var/www/liyara-foreign-employment/qa/frontend
+
+            echo "🧩 Loading NVM (if available)..."
+            export NVM_DIR="\$HOME/.nvm"
+            [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
+            [ -s "\$NVM_DIR/bash_completion" ] && \. "\$NVM_DIR/bash_completion"
+            nvm use node || echo "⚠️ NVM not found, skipping..."
+
+            echo "🔄 Pulling latest changes from Git..."
+            git pull origin qa
+
+            echo "🧹 Cleaning old dist..."
+            rm -rf dist
+
+            echo "📦 Extracting new build..."
+            tar -xzf frontend-dist.tar.gz
+
+            echo "🧹 Cleaning up archive..."
+            rm frontend-dist.tar.gz
+
+            echo "✅ Frontend QA deployment finished on server!"
+          EOF
+
+      # ✅ Restart Nginx
+      - name: 🔄 Restart Nginx
+        run: |
+          echo "🔄 Restarting Nginx..."
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
+            sudo systemctl restart nginx
+            echo "✅ Nginx restarted successfully!"
+          EOF
