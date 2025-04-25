@@ -1,4 +1,4 @@
-import { Box, Divider, Group, Paper, Stack, Tabs, Text } from "@mantine/core";
+import { Box, Divider, Group, Stack, Tabs, Text } from "@mantine/core";
 import xcorpion from "../assets/xcorpion.png";
 import CompanyDetails from "./Settings/Tabs/CompanyDetails.tsx";
 import PersonalDetails from "./Settings/Tabs/PersonalDetails.tsx";
@@ -50,7 +50,7 @@ const SettingsPage = () => {
                         </Tabs.Tab>
                     </Tabs.List>
 
-                    <Paper p="xs" className="w-full" radius="sm">
+                    <Box className="w-full" my="lg">
                         <Tabs.Panel value="company_details">
                             <CompanyDetails/>
                         </Tabs.Panel>
@@ -70,7 +70,7 @@ const SettingsPage = () => {
                         <Tabs.Panel value="dashboard_details">
                             <DashboardDetails/>
                         </Tabs.Panel>
-                    </Paper>
+                    </Box>
                 </Tabs>
             </Box>
 
