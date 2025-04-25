@@ -1,10 +1,10 @@
 import { Box, Divider, Group, Paper, Stack, Tabs, Text } from "@mantine/core";
 import xcorpion from "../assets/xcorpion.png";
-import CompanyDetails from "./settings/Tabs/CompanyDetails.tsx";
-import PersonalDetails from "./settings/Tabs/PersonalDetails.tsx";
-import PassengersDetails from "./settings/Tabs/PassengersDetails.tsx";
-import JobDetails from "./settings/Tabs/JobDetails.tsx";
-import DashboardDetails from "./settings/Tabs/DashboardDetails.tsx";
+import CompanyDetails from "./Settings/Tabs/CompanyDetails.tsx";
+import PersonalDetails from "./Settings/Tabs/PersonalDetails.tsx";
+import PassengersDetails from "./Settings/Tabs/PassengersDetails.tsx";
+import JobDetails from "./Settings/Tabs/JobDetails.tsx";
+import DashboardDetails from "./Settings/Tabs/DashboardDetails.tsx";
 
 const SettingsPage = () => {
     return (
