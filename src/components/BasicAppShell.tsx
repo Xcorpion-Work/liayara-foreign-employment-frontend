@@ -24,8 +24,6 @@ import {
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store.ts";
-import cx from "clsx";
-import classes from "./Demo.module.css";
 
 const BasicAppShell = () => {
     const { setColorScheme } = useMantineColorScheme();
@@ -86,25 +84,18 @@ const BasicAppShell = () => {
                     <Group display="flex" justify="center">
                         <ActionIcon
                             onClick={() =>
-                                setColorScheme(
-                                    computedColorScheme === "light"
-                                        ? "dark"
-                                        : "light"
-                                )
+                                setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')
                             }
                             variant="light"
                             size="md"
                             aria-label="Toggle color scheme"
                             mr="sm"
                         >
-                            <IconSun
-                                className={cx(classes.icon, classes.light)}
-                                stroke={1.5}
-                            />
-                            <IconMoon
-                                className={cx(classes.icon, classes.dark)}
-                                stroke={1.5}
-                            />
+                            {computedColorScheme === 'light' ? (
+                                <IconMoon stroke={1.5} />
+                            ) : (
+                                <IconSun stroke={1.5} />
+                            )}
                         </ActionIcon>
                         <UserInfo />
                     </Group>
