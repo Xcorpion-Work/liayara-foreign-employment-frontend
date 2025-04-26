@@ -28,6 +28,8 @@ const authChecker = async () => {
 };
 
 const LoginPage = React.lazy(() => import("./pages/LoginPage.tsx"));
+const ForgotPasswordPage = React.lazy(() => import("./pages/ForgotPasswordPage.tsx"));
+const PinInputPage = React.lazy(() => import("./pages/PinInputPage.tsx"));
 const AppLayout = React.lazy(() => import("./layouts/AppLayout.tsx"));
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
@@ -94,6 +96,14 @@ const router = createBrowserRouter([
         path: "login",
         element: <LoginPage />,
         loader: authChecker,
+    },
+    {
+        path: "forgot-password",
+        element: <ForgotPasswordPage />,
+    },
+    {
+        path: "pin-input",
+        element: <PinInputPage />,
     },
 ]);
 
