@@ -1,12 +1,58 @@
-import { Box, Divider, Group, Stack, Tabs, Text } from "@mantine/core";
+import {
+    ActionIcon,
+    Box,
+    Card,
+    Divider,
+    Group,
+    SimpleGrid,
+    Stack,
+    Text,
+} from "@mantine/core";
 import xcorpion from "../assets/xcorpion.png";
-import CompanyDetails from "./Settings/Tabs/CompanyDetails.tsx";
-import PersonalDetails from "./Settings/Tabs/PersonalDetails.tsx";
-import PassengersDetails from "./Settings/Tabs/PassengersDetails.tsx";
-import JobDetails from "./Settings/Tabs/JobDetails.tsx";
-import DashboardDetails from "./Settings/Tabs/DashboardDetails.tsx";
+import {
+    IconBuilding,
+    IconShieldLock,
+    IconUser,
+    IconUsersGroup,
+} from "@tabler/icons-react";
+import { useNavigate } from "react-router";
 
 const SettingsPage = () => {
+    const navigate = useNavigate();
+
+    const settingsCards = [
+        {
+            title: "Company Profile",
+            description:
+                "View and update your Company profile information and preference.",
+            icon: <IconBuilding size={20} />,
+            color: "blue",
+            onClick: () => navigate("/app/settings/company-profile"),
+        },
+        {
+            title: "Personal Profile",
+            description:
+                "View and update your personal profile information and preferences.",
+            icon: <IconUser size={20} />,
+            color: "green",
+            onClick: () => navigate("/app/settings/personal-profile"),
+        },
+        {
+            title: "User Management",
+            description: "Add, update and view your company employees.",
+            icon: <IconUsersGroup size={20} />,
+            color: "teal",
+            onClick: () => navigate("/app/settings/user-management"),
+        },
+        {
+            title: "Role Management",
+            description: "Customize your company roles and permissions.",
+            icon: <IconShieldLock size={20} />,
+            color: "violet",
+            onClick: () => navigate("/app/settings/role-management"),
+        },
+    ];
+
     return (
         <>
             {/* Header */}
@@ -33,45 +79,34 @@ const SettingsPage = () => {
                 px="lg"
                 className="items-center justify-between"
             >
-                <Tabs variant="pills" defaultValue="company_details" className="w-full">
-                    <Tabs.List mb="md">
-                        <Tabs.Tab value="company_details">
-                            Company Details
-                        </Tabs.Tab>
-                        <Tabs.Tab value="personal_details">
-                            Personal Details
-                        </Tabs.Tab>
-                        <Tabs.Tab value="passengers_details">
-                            Passengers Details
-                        </Tabs.Tab>
-                        <Tabs.Tab value="job_details">Job Details</Tabs.Tab>
-                        <Tabs.Tab value="dashboard_details">
-                            Dashboard Details
-                        </Tabs.Tab>
-                    </Tabs.List>
-
-                    <Box className="w-full" my="lg">
-                        <Tabs.Panel value="company_details">
-                            <CompanyDetails/>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="personal_details">
-                           <PersonalDetails/>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="passengers_details">
-                            <PassengersDetails/>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="job_details">
-                            <JobDetails/>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="dashboard_details">
-                            <DashboardDetails/>
-                        </Tabs.Panel>
-                    </Box>
-                </Tabs>
+                <SimpleGrid
+                    cols={{ base: 1, sm: 2, md: 4, lg: 4 }}
+                    spacing="lg"
+                >
+                    {settingsCards.map((card, index) => (
+                        <Card
+                            key={index}
+                            withBorder
+                            padding="lg"
+                            radius="sm"
+                            shadow="sm"
+                            className={"cursor-pointer"}
+                            onClick={card.onClick}
+                        >
+                            <Group justify="space-between">
+                                <Text size="md" fw={500}>
+                                    {card.title}
+                                </Text>
+                                <ActionIcon variant="light" color={card.color}>
+                                    {card.icon}
+                                </ActionIcon>
+                            </Group>
+                            <Text size="sm" mt="md" c="dimmed">
+                                {card.description}
+                            </Text>
+                        </Card>
+                    ))}
+                </SimpleGrid>
             </Box>
 
             <Group

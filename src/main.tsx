@@ -31,6 +31,18 @@ const LoginPage = React.lazy(() => import("./pages/LoginPage.tsx"));
 const AppLayout = React.lazy(() => import("./layouts/AppLayout.tsx"));
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
+const CompanyProfile = React.lazy(
+    () => import("./pages/Settings/CompanyProfile.tsx")
+);
+const PersonalProfile = React.lazy(
+    () => import("./pages/Settings/PersonalProfile.tsx")
+);
+const UserManagement = React.lazy(
+    () => import("./pages/Settings/UserManagement.tsx")
+);
+const RoleManagement = React.lazy(
+    () => import("./pages/Settings/RoleManagement.tsx")
+);
 
 const router = createBrowserRouter([
     {
@@ -48,6 +60,23 @@ const router = createBrowserRouter([
             {
                 path: "settings",
                 element: <SettingsPage />,
+            },
+            // settings sub
+            {
+                path: "settings/company-profile",
+                element: <CompanyProfile />,
+            },
+            {
+                path: "settings/personal-profile",
+                element: <PersonalProfile />,
+            },
+            {
+                path: "settings/user-management",
+                element: <UserManagement />,
+            },
+            {
+                path: "settings/role-management",
+                element: <RoleManagement />,
             },
 
             // etc.
