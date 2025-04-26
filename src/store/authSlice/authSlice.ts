@@ -36,6 +36,36 @@ export const login = createAsyncThunk(
     }
 );
 
+export const forgotPassword = createAsyncThunk(
+    "auth/forgotPassword",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${backendUrl}/users/forgot-password`,
+                payload
+            );
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const loginByForgotPassword = createAsyncThunk(
+    "auth/loginByForgotPassword",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${backendUrl}/users/login-by-forgot-password`,
+                payload
+            );
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
 export const changePassword = createAsyncThunk(
     "auth/changePassword",
     async (payload: any, { rejectWithValue }) => {
@@ -96,6 +126,12 @@ const authSlice = createSlice({
                 localStorage.setItem("ACCESS_TOKEN", accessToken);
                 localStorage.setItem("REFRESH_TOKEN", refreshToken);
             })
+            .addCase(loginByForgotPassword.fulfilled, (_, action: PayloadAction<any>) => {
+                const { accessToken, refreshToken } = action.payload.result;
+                localStorage.setItem("ACCESS_TOKEN", accessToken);
+                localStorage.setItem("REFRESH_TOKEN", refreshToken);
+            })
+            .addCase(forgotPassword.fulfilled, () => {})
             .addCase(
                 changePassword.fulfilled,
                 (state: Draft<AuthState>, action: PayloadAction<any>) => {
