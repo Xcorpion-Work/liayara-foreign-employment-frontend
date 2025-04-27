@@ -1,9 +1,4 @@
-import {
-    createAsyncThunk,
-    createSlice,
-    Draft,
-    PayloadAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, Draft, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import axiosInstance from "../../interceptors/axiosInterceptor";
 
@@ -21,44 +16,29 @@ const initialState: AuthState = {
     error: "",
 };
 
-export const login = createAsyncThunk(
-    "auth/login",
-    async (payload: any, { rejectWithValue }) => {
-        try {
-            const response = await axios.post(
-                `${backendUrl}/users/login`,
-                payload
-            );
-            return response.data;
-        } catch (err: any) {
-            throw rejectWithValue(err.response.data);
-        }
+export const login = createAsyncThunk("auth/login", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`${backendUrl}/users/login`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
     }
-);
+});
 
-export const forgotPassword = createAsyncThunk(
-    "auth/forgotPassword",
-    async (payload: any, { rejectWithValue }) => {
-        try {
-            const response = await axios.post(
-                `${backendUrl}/users/forgot-password`,
-                payload
-            );
-            return response.data;
-        } catch (err: any) {
-            throw rejectWithValue(err.response.data);
-        }
+export const forgotPassword = createAsyncThunk("auth/forgotPassword", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`${backendUrl}/users/forgot-password`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
     }
-);
+});
 
 export const loginByForgotPassword = createAsyncThunk(
     "auth/loginByForgotPassword",
     async (payload: any, { rejectWithValue }) => {
         try {
-            const response = await axios.post(
-                `${backendUrl}/users/login-by-forgot-password`,
-                payload
-            );
+            const response = await axios.post(`${backendUrl}/users/login-by-forgot-password`, payload);
             return response.data;
         } catch (err: any) {
             throw rejectWithValue(err.response.data);
@@ -66,47 +46,34 @@ export const loginByForgotPassword = createAsyncThunk(
     }
 );
 
-export const changePassword = createAsyncThunk(
-    "auth/changePassword",
-    async (payload: any, { rejectWithValue }) => {
-        try {
-            const response = await axiosInstance.post(
-                `${backendUrl}/users/change-password`,
-                payload
-            );
-            return response.data;
-        } catch (err: any) {
-            throw rejectWithValue(err.response.data);
-        }
+export const changePassword = createAsyncThunk("auth/changePassword", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`${backendUrl}/users/change-password`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
     }
-);
+});
 
-export const confirmUserLogin = createAsyncThunk(
-    "auth/user",
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await axiosInstance.get(`/users/confirm-login`);
-            return response.data;
-        } catch (err: any) {
-            throw rejectWithValue(err.response.data);
-        }
+export const confirmUserLogin = createAsyncThunk("auth/user", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/users/confirm-login`);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
     }
-);
+});
 
-export const tokenRefresh = createAsyncThunk(
-    "auth/tokenRefresh",
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await axios.post(
-                `${backendUrl}/users/token-refresh`,
-                { refreshToken: localStorage.getItem("REFRESH_TOKEN") }
-            );
-            return response.data;
-        } catch (err: any) {
-            return rejectWithValue(err.response.data);
-        }
+export const tokenRefresh = createAsyncThunk("auth/tokenRefresh", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`${backendUrl}/users/token-refresh`, {
+            refreshToken: localStorage.getItem("REFRESH_TOKEN"),
+        });
+        return response.data;
+    } catch (err: any) {
+        return rejectWithValue(err.response.data);
     }
-);
+});
 
 const authSlice = createSlice({
     name: "auth",
@@ -122,35 +89,26 @@ const authSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(login.fulfilled, (_, action: PayloadAction<any>) => {
-                const { accessToken, refreshToken } = action.payload.result;
+                const { accessToken, refreshToken } = action.payload.response;
                 localStorage.setItem("ACCESS_TOKEN", accessToken);
                 localStorage.setItem("REFRESH_TOKEN", refreshToken);
             })
             .addCase(loginByForgotPassword.fulfilled, (_, action: PayloadAction<any>) => {
-                const { accessToken, refreshToken } = action.payload.result;
+                const { accessToken, refreshToken } = action.payload.response;
                 localStorage.setItem("ACCESS_TOKEN", accessToken);
                 localStorage.setItem("REFRESH_TOKEN", refreshToken);
             })
             .addCase(forgotPassword.fulfilled, () => {})
-            .addCase(
-                changePassword.fulfilled,
-                (state: Draft<AuthState>, action: PayloadAction<any>) => {
-                    state.user = action.payload.result;
-                }
-            )
-            .addCase(
-                confirmUserLogin.fulfilled,
-                (state: Draft<AuthState>, action: PayloadAction<any>) => {
-                    state.user = action.payload.result;
-                }
-            )
-            .addCase(
-                tokenRefresh.fulfilled,
-                (_, action: PayloadAction<any>) => {
-                    const { refreshToken } = action.payload.result;
-                    localStorage.setItem("REFRESH_TOKEN", refreshToken);
-                }
-            );
+            .addCase(changePassword.fulfilled, (state: Draft<AuthState>, action: PayloadAction<any>) => {
+                state.user = action.payload.response;
+            })
+            .addCase(confirmUserLogin.fulfilled, (state: Draft<AuthState>, action: PayloadAction<any>) => {
+                state.user = action.payload.response;
+            })
+            .addCase(tokenRefresh.fulfilled, (_, action: PayloadAction<any>) => {
+                const { refreshToken } = action.payload.response;
+                localStorage.setItem("REFRESH_TOKEN", refreshToken);
+            });
     },
 });
 
