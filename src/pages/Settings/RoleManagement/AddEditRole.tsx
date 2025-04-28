@@ -133,12 +133,12 @@ const AddEditRole = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    {isEditMode ? "Edit Mode" : "Add Role"}
+                                    {isEditMode ? "Edit Role" : "Add Role"}
                                 </Text>
                             </Group>
                         </Group>
                         <Group>
-                            <Text size="xs">{isEditMode ? "Edit" : "Add"} Role and set permissions</Text>
+                            <Text size="xs">{isEditMode ? "Edit" : "Add"} role and set permissions</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>

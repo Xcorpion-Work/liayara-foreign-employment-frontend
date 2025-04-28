@@ -38,10 +38,12 @@ const DashboardPage = React.lazy(() => import("./pages/DashboardPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
 const CompanyProfile = React.lazy(() => import("./pages/Settings/CompanyProfile.tsx"));
 const PersonalProfile = React.lazy(() => import("./pages/Settings/PersonalProfile.tsx"));
-const UserManagement = React.lazy(() => import("./pages/Settings/UserManagement.tsx"));
+const UserManagement = React.lazy(() => import("./pages/Settings/UserManagement"));
 const RoleManagement = React.lazy(() => import("./pages/Settings/RoleManagement"));
 const AddEditRole = React.lazy(() => import("./pages/Settings/RoleManagement/AddEditRole.tsx"));
 const ViewRole = React.lazy(() => import("./pages/Settings/RoleManagement/ViewRole.tsx"));
+const ViewUser = React.lazy(() => import("./pages/Settings/UserManagement/ViewUser.tsx"));
+const AddEditUser = React.lazy(() => import("./pages/Settings/UserManagement/AddEditUser.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -74,12 +76,20 @@ const router = createBrowserRouter([
                 element: <UserManagement />,
             },
             {
+                path: "settings/user-management/view/:id",
+                element: <ViewUser />,
+            },
+            {
                 path: "settings/role-management",
                 element: <RoleManagement />,
             },
             {
                 path: "settings/role-management/add-edit",
                 element: <AddEditRole />,
+            },
+            {
+                path: "settings/user-management/add-edit",
+                element: <AddEditUser />,
             },
             {
                 path: "settings/role-management/view/:id",

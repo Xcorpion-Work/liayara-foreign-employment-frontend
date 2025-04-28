@@ -104,7 +104,7 @@ export const getUser = createAsyncThunk("user/getUser", async (id: any, { reject
 
 export const updateUser = createAsyncThunk("user/updateUser", async (payload: any, { rejectWithValue }) => {
     try {
-        const response = await axiosInstance.put(`/users/user/${payload.id}`, payload.values);
+        const response = await axiosInstance.put(`/users/user/${payload.id}`, payload);
         return response.data;
     } catch (err: any) {
         throw rejectWithValue(err.response.data);
@@ -162,8 +162,8 @@ const userSlice = createSlice({
             state.selectedRole = action.payload.response;
         });
         builder.addCase(updateUser.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
-            state.users = state.users.map((supplier: any) =>
-                supplier._id === action.payload.response._id ? action.payload.response : supplier
+            state.users = state.users.map((user: any) =>
+                user._id === action.payload.response._id ? action.payload.response : user
             );
             state.selectedUser = null;
         });

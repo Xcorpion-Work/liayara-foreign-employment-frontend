@@ -51,7 +51,7 @@ const ViewRole = () => {
                             </Group>
                         </Group>
                         <Group>
-                            <Text size="xs">View Role and set permissions</Text>
+                            <Text size="xs">View role and view permissions</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>
