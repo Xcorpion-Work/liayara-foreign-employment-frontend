@@ -1,12 +1,5 @@
 import logo from "../assets/logo1.png";
-import {
-    Box,
-    Button,
-    Group,
-    PasswordInput,
-    Text,
-    TextInput,
-} from "@mantine/core";
+import { Box, Button, Group, PasswordInput, Text, TextInput } from "@mantine/core";
 import { useNavigate } from "react-router";
 import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
@@ -87,13 +80,12 @@ const LoginPage = () => {
                     <Text className="text-lg">Liyara Foreign Employment ⌘</Text>
                     <br />
                     <Text className="text-sm">
-                        Wijekoon Distributors is a company located in Mawathagama,
-                        Kurunegala, Sri Lanka, specializing in business operations across
-                        the North Western Province. The company focuses on the
-                        distribution of mineral and chemical products, in collaboration
-                        with Keshara Minerals and Chemicals (Pvt) Limited. Their expertise
-                        in combining these products ensures efficient and reliable supply
-                        chain operations within the region.
+                        Liyara Foreign Employment is a trusted overseas recruitment agency based in Colombo, Sri Lanka,
+                        specializing in connecting skilled Sri Lankan workers with leading employers abroad, especially
+                        in the Middle East. The company is committed to providing professional recruitment services,
+                        ensuring reliable placements, and supporting candidates throughout the employment process. With
+                        a strong focus on excellence, trust, and efficiency, Liyara Foreign Employment helps individuals
+                        build successful international careers.
                     </Text>
                 </Box>
             </Box>
@@ -131,7 +123,7 @@ const LoginPage = () => {
                             </Button>
                         </Group>
                         <Text mt="md" size="xs">
-                            Forgot your password?{' '}
+                            Forgot your password?{" "}
                             <a
                                 href="#"
                                 onClick={(e) => {
