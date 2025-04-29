@@ -10,10 +10,13 @@ import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
+import "@mantine/core/styles.layer.css";
+import "mantine-datatable/styles.layer.css";
+import "./layout.css";
 
 import { AuthLoaderChecker } from "./utils/authChecker.ts";
 import { Notifications } from "@mantine/notifications";
-// import Loading from "./components/Loading.tsx";
+
 const Loading = React.lazy(() => import("./components/Loading.tsx"));
 import { LoadingProvider } from "./helpers/loadingContext.tsx";
 import { DatesProvider } from "@mantine/dates";
@@ -28,21 +31,19 @@ const authChecker = async () => {
 };
 
 const LoginPage = React.lazy(() => import("./pages/LoginPage.tsx"));
+const ForgotPasswordPage = React.lazy(() => import("./pages/ForgotPasswordPage.tsx"));
+const PinInputPage = React.lazy(() => import("./pages/PinInputPage.tsx"));
 const AppLayout = React.lazy(() => import("./layouts/AppLayout.tsx"));
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
-const CompanyProfile = React.lazy(
-    () => import("./pages/Settings/CompanyProfile.tsx")
-);
-const PersonalProfile = React.lazy(
-    () => import("./pages/Settings/PersonalProfile.tsx")
-);
-const UserManagement = React.lazy(
-    () => import("./pages/Settings/UserManagement.tsx")
-);
-const RoleManagement = React.lazy(
-    () => import("./pages/Settings/RoleManagement.tsx")
-);
+const CompanyProfile = React.lazy(() => import("./pages/Settings/CompanyProfile.tsx"));
+const PersonalProfile = React.lazy(() => import("./pages/Settings/PersonalProfile/PersonalProfile.tsx"));
+const UserManagement = React.lazy(() => import("./pages/Settings/UserManagement"));
+const RoleManagement = React.lazy(() => import("./pages/Settings/RoleManagement"));
+const AddEditRole = React.lazy(() => import("./pages/Settings/RoleManagement/AddEditRole.tsx"));
+const ViewRole = React.lazy(() => import("./pages/Settings/RoleManagement/ViewRole.tsx"));
+const ViewUser = React.lazy(() => import("./pages/Settings/UserManagement/ViewUser.tsx"));
+const AddEditUser = React.lazy(() => import("./pages/Settings/UserManagement/AddEditUser.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -75,8 +76,24 @@ const router = createBrowserRouter([
                 element: <UserManagement />,
             },
             {
+                path: "settings/user-management/view/:id",
+                element: <ViewUser />,
+            },
+            {
                 path: "settings/role-management",
                 element: <RoleManagement />,
+            },
+            {
+                path: "settings/role-management/add-edit",
+                element: <AddEditRole />,
+            },
+            {
+                path: "settings/user-management/add-edit",
+                element: <AddEditUser />,
+            },
+            {
+                path: "settings/role-management/view/:id",
+                element: <ViewRole />,
             },
 
             // etc.
@@ -95,14 +112,19 @@ const router = createBrowserRouter([
         element: <LoginPage />,
         loader: authChecker,
     },
+    {
+        path: "forgot-password",
+        element: <ForgotPasswordPage />,
+    },
+    {
+        path: "pin-input",
+        element: <PinInputPage />,
+    },
 ]);
 
 createRoot(document.getElementById("root")!).render(
     <Provider store={store}>
-        <MantineProvider
-            defaultColorScheme="light"
-            theme={{ fontFamily: "Ubuntu, sans-serif" }}
-        >
+        <MantineProvider defaultColorScheme="light" theme={{ fontFamily: "Ubuntu, sans-serif" }}>
             <DatesProvider settings={{ timezone: "UTC" }}>
                 <Suspense fallback={<Loading />}>
                     <LoadingProvider>

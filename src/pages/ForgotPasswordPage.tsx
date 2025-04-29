@@ -1,62 +1,63 @@
 import logo from "../assets/logo1.png";
-import { Box, Button, Group, PasswordInput, Text, TextInput } from "@mantine/core";
+import {
+    Box,
+    Button,
+    Group,
+    Text,
+    TextInput,
+} from "@mantine/core";
 import { useNavigate } from "react-router";
 import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store/store.ts";
-import { login } from "../store/authSlice/authSlice.ts";
+import { forgotPassword } from "../store/authSlice/authSlice.ts";
 import toNotify from "../helpers/toNotify.tsx";
 import { useLoading } from "../helpers/loadingContext.tsx";
 import xcorpion from "../assets/xcorpion.png";
 
-const LoginPage = () => {
+const ForgotPasswordPage = () => {
     const { setLoading } = useLoading();
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch | any>();
 
-    const loginForm = useForm({
+    const form = useForm({
         mode: "controlled",
         initialValues: {
-            emailOrPhone: "",
-            password: "",
+            email: "",
         },
         validate: {
-            emailOrPhone: (value) => {
+            email: (value) => {
                 if (!value) {
-                    return "Email or phone is required";
+                    return "Email is required";
                 }
-                // Regex for validating email
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                // Regex for validating phone number
-                const phoneRegex = /^07[0-9]\d{7}$/;
-
-                if (!emailRegex.test(value) && !phoneRegex.test(value)) {
-                    return "Enter a valid email or phone number";
+                if (!emailRegex.test(value)) {
+                    return "Enter a valid email";
                 }
 
                 return null; // No error
             },
-            password: (value) => (value ? null : "Password is required"),
         },
     });
 
-    const handleLogin = async (values: typeof loginForm.values, event: any) => {
+    const handleForgotPassword = async (values: typeof form.values, event: any) => {
         event.preventDefault();
         setLoading(true);
         try {
-            const payload = await dispatch(login(values));
+            const payload = await dispatch(forgotPassword(values));
             switch (payload.type) {
-                case "auth/login/rejected": {
+                case "auth/forgotPassword/rejected": {
                     const error = payload.payload.error;
                     console.log("error", error);
                     setLoading(false);
-                    toNotify("Login Error", `${error}`, "ERROR");
+                    toNotify("Error", `${error ?? "Please contact system admin"}`, "ERROR");
                     break;
                 }
-                case "auth/login/fulfilled":
-                    console.log("Login successful");
+                case "auth/forgotPassword/fulfilled":
+                    console.log("Forgot password submit successful");
                     setLoading(false);
-                    navigate("/");
+                    toNotify("Success", `Please check your email`, "SUCCESS");
+                    navigate("/login");
                     break;
                 default:
                     setLoading(false);
@@ -65,7 +66,7 @@ const LoginPage = () => {
         } catch (e: any) {
             setLoading(false);
             console.error("Unexpected error:", e.message);
-            toNotify("Login Error", "An unexpected error occurred", "ERROR");
+            toNotify("Error", "Please contact system admin", "WARNING");
         }
     };
 
@@ -80,12 +81,13 @@ const LoginPage = () => {
                     <Text className="text-lg">Liyara Foreign Employment ⌘</Text>
                     <br />
                     <Text className="text-sm">
-                        Liyara Foreign Employment is a trusted overseas recruitment agency based in Colombo, Sri Lanka,
-                        specializing in connecting skilled Sri Lankan workers with leading employers abroad, especially
-                        in the Middle East. The company is committed to providing professional recruitment services,
-                        ensuring reliable placements, and supporting candidates throughout the employment process. With
-                        a strong focus on excellence, trust, and efficiency, Liyara Foreign Employment helps individuals
-                        build successful international careers.
+                        Wijekoon Distributors is a company located in Mawathagama,
+                        Kurunegala, Sri Lanka, specializing in business operations across
+                        the North Western Province. The company focuses on the
+                        distribution of mineral and chemical products, in collaboration
+                        with Keshara Minerals and Chemicals (Pvt) Limited. Their expertise
+                        in combining these products ensures efficient and reliable supply
+                        chain operations within the region.
                     </Text>
                 </Box>
             </Box>
@@ -97,44 +99,32 @@ const LoginPage = () => {
                     <img src={logo} alt="logo" className="h-32" />
                 </Box>
                 <Box className="max-w-[400px] w-full">
-                    <form onSubmit={loginForm.onSubmit(handleLogin)}>
+                    <form onSubmit={form.onSubmit(handleForgotPassword)}>
                         <TextInput
                             withAsterisk
-                            label="Email or Phone"
-                            placeholder="your@email.com / 0XXXXXXXXX"
-                            {...loginForm.getInputProps("emailOrPhone")}
+                            label="Email"
+                            placeholder="your@email.com"
+                            {...form.getInputProps("email")}
                         />
-
-                        <PasswordInput
-                            withAsterisk
-                            label="Password"
-                            type="password"
-                            placeholder="Password"
-                            mt="md"
-                            {...loginForm.getInputProps("password")}
-                        />
+                        <Text
+                            size="xs"
+                            mt="xs"
+                            onClick={() => navigate("/login")}
+                            component="span"
+                        >
+                            <a className="text-blue-700 underline cursor-pointer">
+                                Click here to login
+                            </a>
+                        </Text>
 
                         <Group
                             mt="md"
                             className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0 md:space-x-4"
                         >
                             <Button type="submit" color="black" fullWidth>
-                                Login
+                                Submit
                             </Button>
                         </Group>
-                        <Text mt="md" size="xs">
-                            Forgot your password?{" "}
-                            <a
-                                href="#"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    navigate("/forgot-password");
-                                }}
-                                className="text-blue-700 underline"
-                            >
-                                Click here
-                            </a>
-                        </Text>
                     </form>
                 </Box>
                 <Group
@@ -149,4 +139,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default ForgotPasswordPage;

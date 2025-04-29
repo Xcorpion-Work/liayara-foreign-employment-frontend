@@ -26,7 +26,7 @@ const initialState: dashboardState = {
     invoicesCount: 0,
     chequesToDeposit: {},
     chequesComesToTransfer: {},
-    invoicesToBePaid:{},
+    invoicesToBePaid: {},
     status: "idle",
     error: "",
 };
@@ -35,15 +35,12 @@ export const getDashboardDetails = createAsyncThunk(
     "dashboard/getDetails",
     async (payload: any, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.post(
-                `/dashboard/details`,
-                payload,
-            );
+            const response = await axiosInstance.post(`/dashboard/details`, payload);
             return response.data;
         } catch (err: any) {
             throw rejectWithValue(err.response.data);
         }
-    },
+    }
 );
 
 const dashboardSlice = createSlice({
@@ -51,12 +48,9 @@ const dashboardSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(
-            getDashboardDetails.fulfilled,
-            (state: Draft<dashboardState>, action: PayloadAction<any>) => {
-                Object.assign(state, action.payload.result);
-            }
-        );
+        builder.addCase(getDashboardDetails.fulfilled, (state: Draft<dashboardState>, action: PayloadAction<any>) => {
+            Object.assign(state, action.payload.response);
+        });
     },
 });
 
