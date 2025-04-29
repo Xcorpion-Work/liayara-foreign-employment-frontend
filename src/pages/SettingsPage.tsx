@@ -1,38 +1,24 @@
-import {
-    ActionIcon,
-    Box,
-    Card,
-    Divider,
-    Group,
-    SimpleGrid,
-    Stack,
-    Text,
-} from "@mantine/core";
+import { ActionIcon, Box, Card, Divider, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import xcorpion from "../assets/xcorpion.png";
-import {
-    IconBuilding,
-    IconShieldLock,
-    IconUser,
-    IconUsersGroup,
-} from "@tabler/icons-react";
+import { IconBuilding, IconShieldLock, IconUser, IconUsersGroup } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
+import { usePermission } from "../helpers/previlleges.ts";
 
 const SettingsPage = () => {
     const navigate = useNavigate();
+    const { hasAnyPrivilege} = usePermission();
 
     const settingsCards = [
         {
             title: "Company Profile",
-            description:
-                "View and update your Company profile information and preference.",
+            description: "View and update your Company profile information and preference.",
             icon: <IconBuilding size={20} />,
             color: "blue",
             onClick: () => navigate("/app/settings/company-profile"),
         },
         {
             title: "Personal Profile",
-            description:
-                "View and update your personal profile information and preferences.",
+            description: "View and update your personal profile information and preferences.",
             icon: <IconUser size={20} />,
             color: "green",
             onClick: () => navigate("/app/settings/personal-profile"),
@@ -42,6 +28,7 @@ const SettingsPage = () => {
             description: "Add, update and view your company employees.",
             icon: <IconUsersGroup size={20} />,
             color: "teal",
+            permissions: ["CREATE.ROLE", "EDIT.ROLE", "VIEW.ROLE"],
             onClick: () => navigate("/app/settings/user-management"),
         },
         {
@@ -49,6 +36,7 @@ const SettingsPage = () => {
             description: "Customize your company roles and permissions.",
             icon: <IconShieldLock size={20} />,
             color: "violet",
+            permissions: ["CREATE.ROLE", "EDIT.ROLE", "VIEW.ROLE"],
             onClick: () => navigate("/app/settings/role-management"),
         },
     ];
@@ -65,47 +53,41 @@ const SettingsPage = () => {
                             </Text>
                         </Group>
                         <Group>
-                            <Text size="xs">
-                                Manage your settings and preference
-                            </Text>
+                            <Text size="xs">Manage your settings and preference</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>
                 </Box>
             </Box>
 
-            <Box
-                display="flex"
-                px="lg"
-                className="items-center justify-between"
-            >
-                <SimpleGrid
-                    cols={{ base: 1, sm: 2, md: 4, lg: 4 }}
-                    spacing="lg"
-                >
-                    {settingsCards.map((card, index) => (
-                        <Card
-                            key={index}
-                            withBorder
-                            padding="lg"
-                            radius="sm"
-                            shadow="sm"
-                            className={"cursor-pointer"}
-                            onClick={card.onClick}
-                        >
-                            <Group justify="space-between">
-                                <Text size="md" fw={500}>
-                                    {card.title}
+            <Box display="flex" px="lg" className="items-center justify-between">
+                <SimpleGrid cols={{ base: 1, sm: 2, md: 4, lg: 4 }} spacing="lg">
+                    {settingsCards.map((card, index) => {
+                        const canShow = !card.permissions || hasAnyPrivilege(card.permissions);
+                        return canShow && (
+                            <Card
+                                key={index}
+                                withBorder
+                                padding="lg"
+                                radius="sm"
+                                shadow="sm"
+                                className="cursor-pointer"
+                                onClick={card.onClick}
+                            >
+                                <Group justify="space-between">
+                                    <Text size="md" fw={500}>
+                                        {card.title}
+                                    </Text>
+                                    <ActionIcon variant="light" color={card.color}>
+                                        {card.icon}
+                                    </ActionIcon>
+                                </Group>
+                                <Text size="sm" mt="md" c="dimmed">
+                                    {card.description}
                                 </Text>
-                                <ActionIcon variant="light" color={card.color}>
-                                    {card.icon}
-                                </ActionIcon>
-                            </Group>
-                            <Text size="sm" mt="md" c="dimmed">
-                                {card.description}
-                            </Text>
-                        </Card>
-                    ))}
+                            </Card>
+                        );
+                    })}
                 </SimpleGrid>
             </Box>
 
