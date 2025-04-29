@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import toNotify from "../../../helpers/toNotify.tsx";
 import { addRole, getAllPermissions, getRole, updateRole } from "../../../store/userSlice/userSlice.ts";
 import { isNotEmpty, useForm } from "@mantine/form";
+import { confirmUserLogin } from "../../../store/authSlice/authSlice.ts";
 
 const AddEditRole = () => {
     const navigate = useNavigate();
@@ -114,6 +115,7 @@ const AddEditRole = () => {
             } else {
                 toNotify("Success", isEditMode ? "Role updated successfully" : "Role saved successfully", "SUCCESS");
                 navigate("/app/settings/role-management");
+                await dispatch(confirmUserLogin());
             }
         } catch (e) {
             console.error(e);

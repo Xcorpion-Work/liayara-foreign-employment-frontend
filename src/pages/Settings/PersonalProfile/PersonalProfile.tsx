@@ -238,7 +238,7 @@ const PersonalProfile = () => {
                             </Text>
                         </Group>
                         <Group>
-                            <Text size="xs">Manage your company details</Text>
+                            <Text size="xs">Manage your personal details</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>
