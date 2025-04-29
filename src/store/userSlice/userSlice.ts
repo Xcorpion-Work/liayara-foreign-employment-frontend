@@ -7,6 +7,7 @@ interface UserState {
     permissions: any;
     selectedUser: any;
     selectedRole: any;
+    organizationData: any;
     status: string;
     error: string;
 }
@@ -17,6 +18,7 @@ const initialState: UserState = {
     permissions: [],
     selectedUser: {},
     selectedRole: {},
+    organizationData: {},
     status: "idle",
     error: "",
 };
@@ -42,6 +44,24 @@ export const addRole = createAsyncThunk("user/addRole", async (payload: any, { r
 export const getUsers = createAsyncThunk("user/getUsers", async (payload: any, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.post(`/users/users`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const getOrganizationData = createAsyncThunk("user/getOrganizationData", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/users/organization-data`);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const updateOrganizationData = createAsyncThunk("user/updateOrganizationData", async (payload:any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.put(`/users/organization-data/${payload.id}`, payload);
         return response.data;
     } catch (err: any) {
         throw rejectWithValue(err.response.data);
@@ -161,6 +181,9 @@ const userSlice = createSlice({
         builder.addCase(getRole.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
             state.selectedRole = action.payload.response;
         });
+        builder.addCase(getOrganizationData.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
+            state.organizationData = action.payload.response;
+        });
         builder.addCase(updateUser.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
             state.users = state.users.map((user: any) =>
                 user._id === action.payload.response._id ? action.payload.response : user
@@ -178,6 +201,9 @@ const userSlice = createSlice({
                 supplier._id === action.payload.response._id ? action.payload.response : supplier
             );
             state.selectedUser = null;
+        });
+        builder.addCase(updateOrganizationData.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
+            state.organizationData = action.payload.response;
         });
     },
 });

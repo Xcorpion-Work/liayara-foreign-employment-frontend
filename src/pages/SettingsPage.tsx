@@ -14,6 +14,7 @@ const SettingsPage = () => {
             description: "View and update your Company profile information and preference.",
             icon: <IconBuilding size={20} />,
             color: "blue",
+            permissions: ["EDIT.ORGANIZATIONDATA", "VIEW.ORGANIZATIONDATA"],
             onClick: () => navigate("/app/settings/company-profile"),
         },
         {

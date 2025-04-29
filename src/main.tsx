@@ -36,7 +36,7 @@ const PinInputPage = React.lazy(() => import("./pages/PinInputPage.tsx"));
 const AppLayout = React.lazy(() => import("./layouts/AppLayout.tsx"));
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
-const CompanyProfile = React.lazy(() => import("./pages/Settings/CompanyProfile.tsx"));
+const CompanyProfile = React.lazy(() => import("./pages/Settings/CompanyProfile/CompanyProfile.tsx"));
 const PersonalProfile = React.lazy(() => import("./pages/Settings/PersonalProfile/PersonalProfile.tsx"));
 const UserManagement = React.lazy(() => import("./pages/Settings/UserManagement"));
 const RoleManagement = React.lazy(() => import("./pages/Settings/RoleManagement"));
