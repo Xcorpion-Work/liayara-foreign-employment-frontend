@@ -81,16 +81,46 @@ const AddEditRole = () => {
     });
 
     const togglePermission = (id: string) => {
+        const isRemoving = form.values.permissions.includes(id);
+        const currentPermissions = [...form.values.permissions];
+
+        const permissionObj = permissions.find((p:any) => p._id === id);
+        const code = permissionObj?.code || "";
+
         if (isEditMode && selectedRole?.permissions.includes(id)) {
             toNotify("Error", "Cannot remove already assigned permission", "ERROR");
             return;
         }
-        form.setFieldValue(
-            "permissions",
-            form.values.permissions.includes(id)
-                ? form.values.permissions.filter((pid) => pid !== id) // Remove
-                : [...form.values.permissions, id] // Add
-        );
+
+        const [action, ...moduleParts] = code.split(".");
+        const module = moduleParts.join(".");
+
+        if (isRemoving) {
+            if (action === "VIEW") {
+                const hasCreateOrEdit = permissions.some(
+                    (p:any) =>
+                        (p.code === `CREATE.${module}` || p.code === `EDIT.${module}`) &&
+                        currentPermissions.includes(p._id)
+                );
+                if (hasCreateOrEdit) {
+                    toNotify("Error", "Cannot remove VIEW permission while EDIT or CREATE is selected", "ERROR");
+                    return;
+                }
+            }
+            form.setFieldValue(
+                "permissions",
+                currentPermissions.filter((pid) => pid !== id)
+            );
+        } else {
+            const newPermissions = [...currentPermissions, id];
+            if (action === "CREATE" || action === "EDIT") {
+                const viewPermission = permissions.find((p:any) => p.code === `VIEW.${module}`);
+                if (viewPermission && !newPermissions.includes(viewPermission._id)) {
+                    newPermissions.push(viewPermission._id);
+                }
+            }
+            form.setFieldValue("permissions", newPermissions);
+        }
     };
 
     const modules: any = Array.from(new Set(permissions?.map((p: any) => p.module)));
@@ -164,8 +194,8 @@ const AddEditRole = () => {
                                 <Table.Tr>
                                     <Table.Th>Module</Table.Th>
                                     <Table.Th>Create</Table.Th>
-                                    <Table.Th>Edit</Table.Th>
                                     <Table.Th>View</Table.Th>
+                                    <Table.Th>Edit</Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
@@ -193,7 +223,7 @@ const AddEditRole = () => {
                                         <Table.Td>
                                             {(() => {
                                                 const perm = permissions.find(
-                                                    (p: any) => p.module === moduleName && p.code.includes("EDIT")
+                                                    (p: any) => p.module === moduleName && p.code.includes("VIEW")
                                                 );
                                                 return perm ? (
                                                     <Checkbox
@@ -209,7 +239,7 @@ const AddEditRole = () => {
                                         <Table.Td>
                                             {(() => {
                                                 const perm = permissions.find(
-                                                    (p: any) => p.module === moduleName && p.code.includes("VIEW")
+                                                    (p: any) => p.module === moduleName && p.code.includes("EDIT")
                                                 );
                                                 return perm ? (
                                                     <Checkbox
