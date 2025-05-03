@@ -44,6 +44,8 @@ const AddEditRole = React.lazy(() => import("./pages/Settings/RoleManagement/Add
 const ViewRole = React.lazy(() => import("./pages/Settings/RoleManagement/ViewRole.tsx"));
 const ViewUser = React.lazy(() => import("./pages/Settings/UserManagement/ViewUser.tsx"));
 const AddEditUser = React.lazy(() => import("./pages/Settings/UserManagement/AddEditUser.tsx"));
+const PassengerStatus = React.lazy(() => import("./pages/Settings/PassengerStatus"));
+const EditPassengerStatus = React.lazy(() => import("./pages/Settings/PassengerStatus/EditPassengerStatus.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -94,6 +96,14 @@ const router = createBrowserRouter([
             {
                 path: "settings/role-management/view/:id",
                 element: <ViewRole />,
+            },
+            {
+                path: "settings/passenger-status",
+                element: <PassengerStatus />,
+            },
+            {
+                path: "settings/passenger-status/edit",
+                element: <EditPassengerStatus />,
             },
 
             // etc.

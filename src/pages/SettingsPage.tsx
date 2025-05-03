@@ -1,6 +1,6 @@
 import { ActionIcon, Box, Card, Divider, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import xcorpion from "../assets/xcorpion.png";
-import { IconBuilding, IconShieldLock, IconUser, IconUsersGroup } from "@tabler/icons-react";
+import { IconBuilding, IconShieldLock, IconStairs, IconUser, IconUsersGroup } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../helpers/previlleges.ts";
 
@@ -14,7 +14,7 @@ const SettingsPage = () => {
             description: "View and update your Company profile information and preference.",
             icon: <IconBuilding size={20} />,
             color: "blue",
-            permissions: ["EDIT.ORGANIZATIONDATA", "VIEW.ORGANIZATIONDATA"],
+            permissions: ["VIEW.ORGANIZATION.DATA"],
             onClick: () => navigate("/app/settings/company-profile"),
         },
         {
@@ -29,7 +29,7 @@ const SettingsPage = () => {
             description: "Add, update and view your company employees.",
             icon: <IconUsersGroup size={20} />,
             color: "teal",
-            permissions: ["CREATE.ROLE", "EDIT.ROLE", "VIEW.ROLE"],
+            permissions: ["VIEW.ROLE"],
             onClick: () => navigate("/app/settings/user-management"),
         },
         {
@@ -37,8 +37,16 @@ const SettingsPage = () => {
             description: "Customize your company roles and permissions.",
             icon: <IconShieldLock size={20} />,
             color: "violet",
-            permissions: ["CREATE.ROLE", "EDIT.ROLE", "VIEW.ROLE"],
+            permissions: ["VIEW.ROLE"],
             onClick: () => navigate("/app/settings/role-management"),
+        },
+        {
+            title: "Passenger Status",
+            description: "Customize passenger statuses, approval roles and sequences",
+            icon: <IconStairs size={20} />,
+            color: "orange",
+            permissions: ["VIEW.PASSENGER.STATUS"],
+            onClick: () => navigate("/app/settings/passenger-status"),
         },
     ];
 
