@@ -1,6 +1,14 @@
 import { ActionIcon, Box, Card, Divider, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import xcorpion from "../assets/xcorpion.png";
-import { IconBuilding, IconShieldLock, IconStairs, IconUser, IconUsersGroup } from "@tabler/icons-react";
+import {
+    IconBriefcase,
+    IconBuilding,
+    IconFile,
+    IconShieldLock,
+    IconStairs,
+    IconUser,
+    IconUsersGroup,
+} from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../helpers/previlleges.ts";
 
@@ -47,6 +55,22 @@ const SettingsPage = () => {
             color: "orange",
             permissions: ["VIEW.PASSENGER.STATUS"],
             onClick: () => navigate("/app/settings/passenger-status"),
+        },
+        {
+            title: "Document Types",
+            description: "Customize passenger documents which required to process",
+            icon: <IconFile size={20} />,
+            color: "yellow",
+            permissions: ["VIEW.PASSENGER.DOCUMENT.TYPE"],
+            onClick: () => navigate("/app/settings/passenger-documents"),
+        },
+        {
+            title: "Job Catalogs",
+            description: "Customize job catalog of your company",
+            icon: <IconBriefcase size={20} />,
+            color: "grey",
+            permissions: ["VIEW.JOB.CATALOG"],
+            onClick: () => navigate("/app/settings/job-catalogs"),
         },
     ];
 
