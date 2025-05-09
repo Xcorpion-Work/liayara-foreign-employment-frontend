@@ -171,7 +171,16 @@ const EditPassengerStatus = () => {
                             data={selectableRoles || []}
                             placeholder="Select Roles"
                             w={{ lg: "50%", sm: "100%" }}
-                            {...form.getInputProps("roles")}
+                            value={form.values.roles}
+                            onChange={(selected) => {
+                                const superAdmin = roles.find((r: any) => r.name === "Super Admin")?._id;
+                                if (form.values.roles.includes(superAdmin) && !selected.includes(superAdmin)) {
+                                    toNotify("Warning", "You cannot remove Super Admin", "WARNING");
+                                    form.setFieldValue("roles", [...selected, superAdmin]);
+                                } else {
+                                    form.setFieldValue("roles", selected);
+                                }
+                            }}
                         />
 
                         <Group mt="md">

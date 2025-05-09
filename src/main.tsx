@@ -46,6 +46,9 @@ const ViewUser = React.lazy(() => import("./pages/Settings/UserManagement/ViewUs
 const AddEditUser = React.lazy(() => import("./pages/Settings/UserManagement/AddEditUser.tsx"));
 const PassengerStatus = React.lazy(() => import("./pages/Settings/PassengerStatus"));
 const EditPassengerStatus = React.lazy(() => import("./pages/Settings/PassengerStatus/EditPassengerStatus.tsx"));
+const PassengerDocuments = React.lazy(() => import("./pages/Settings/PassengerDocumentTypes"));
+const JobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs"));
+const AddEditJobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs/AddEditJobCatalog.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -104,6 +107,18 @@ const router = createBrowserRouter([
             {
                 path: "settings/passenger-status/edit",
                 element: <EditPassengerStatus />,
+            },
+            {
+                path: "settings/passenger-documents",
+                element: <PassengerDocuments />,
+            },
+            {
+                path: "settings/job-catalogs",
+                element: <JobCatalogs />,
+            },
+            {
+                path: "settings/job-catalogs/add-edit",
+                element: <AddEditJobCatalogs />,
             },
 
             // etc.
