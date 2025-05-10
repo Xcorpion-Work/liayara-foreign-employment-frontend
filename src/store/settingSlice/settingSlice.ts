@@ -8,6 +8,12 @@ interface SettingState {
     selectedPassengerDocumentType: any;
     jobCatalogs: any;
     selectedJobCatalog: any;
+    countries: any;
+    selectedCountry: any;
+    jobQualifications: any;
+    selectedJobQualification: any;
+    languageQualifications: any;
+    selectedLanguageQualifications: any;
     status: string;
     error: string;
 }
@@ -19,6 +25,12 @@ const initialState: SettingState = {
     selectedPassengerDocumentType: {},
     jobCatalogs: [],
     selectedJobCatalog: {},
+    countries: [],
+    selectedCountry: {},
+    jobQualifications: [],
+    selectedJobQualification: {},
+    languageQualifications: [],
+    selectedLanguageQualifications: {},
     status: "idle",
     error: "",
 };
@@ -152,6 +164,96 @@ export const getJobCatalog = createAsyncThunk("setting/getJobCatalog", async (id
     }
 });
 
+export const getAllCountries = createAsyncThunk(
+    "setting/getAllCountries",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/settings/countries`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const createCountry = createAsyncThunk("setting/createCountry", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`/settings/country`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const updateCountry = createAsyncThunk("setting/updateCountry", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.put(`/settings/country/${payload.id}`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const getAllJobQualification = createAsyncThunk(
+    "setting/getAllJobQualification",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/settings/job-qualifications`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const createJobQualification = createAsyncThunk("setting/createJobQualification", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`/settings/job-qualification`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const updateJobQualification = createAsyncThunk("setting/updateJobQualification", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.put(`/settings/job-qualification/${payload.id}`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const getAllLanguageQualification = createAsyncThunk(
+    "setting/getAllLanguageQualification",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/settings/language-qualifications`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const createLanguageQualification = createAsyncThunk("setting/createLanguageQualification", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`/settings/language-qualification`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const updateLanguageQualification = createAsyncThunk("setting/updateLanguageQualification", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.put(`/settings/language-qualification/${payload.id}`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
 const settingSlice = createSlice({
     name: "setting",
     initialState,
@@ -207,6 +309,42 @@ const settingSlice = createSlice({
         });
         builder.addCase(getJobCatalog.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
             state.selectedJobCatalog = action.payload.response;
+        });
+        builder.addCase(getAllCountries.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.countries = action.payload.response;
+        });
+        builder.addCase(updateCountry.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.countries = state.countries.map((c: any) =>
+                c._id === action.payload.response._id ? action.payload.response : c
+            );
+            state.selectedCountry = null;
+        });
+        builder.addCase(createCountry.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload;
+        });
+        builder.addCase(getAllJobQualification.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.jobQualifications = action.payload.response;
+        });
+        builder.addCase(updateJobQualification.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.jobQualifications = state.jobQualifications.map((jq: any) =>
+                jq._id === action.payload.response._id ? action.payload.response : jq
+            );
+            state.selectedJobQualification = null;
+        });
+        builder.addCase(createJobQualification.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload;
+        });
+        builder.addCase(getAllLanguageQualification.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.languageQualifications = action.payload.response;
+        });
+        builder.addCase(updateLanguageQualification.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.languageQualifications = state.languageQualifications.map((lq: any) =>
+                lq._id === action.payload.response._id ? action.payload.response : lq
+            );
+            state.selectedLanguageQualifications = null;
+        });
+        builder.addCase(createLanguageQualification.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload;
         });
     },
 });

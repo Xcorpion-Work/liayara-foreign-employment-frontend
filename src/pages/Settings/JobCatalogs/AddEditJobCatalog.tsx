@@ -30,7 +30,7 @@ const AddEditJobCatalog = () => {
     const isEditMode = Boolean(jobId);
     const isMobile = useMediaQuery("(max-width: 768px)");
 
-    const selectedRole = useSelector((state: RootState) => state.user.selectedRole);
+    const selectedJobCatalog = useSelector((state: RootState) => state.setting.selectedJobCatalog);
 
     useEffect(() => {
         if (isEditMode) {
@@ -39,19 +39,25 @@ const AddEditJobCatalog = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedRole && isEditMode) {
+        if (selectedJobCatalog && isEditMode) {
             form.setValues({
-                name: selectedRole.name || "",
+                name: selectedJobCatalog?.name || "",
+                specification: selectedJobCatalog?.specification || "",
+                from: selectedJobCatalog?.ageLimit?.from.toString() || null,
+                to: selectedJobCatalog?.ageLimit?.to.toString() || null,
+                gender: selectedJobCatalog?.gender || "",
+                doesChargeByPassenger: selectedJobCatalog?.doesChargeByPassenger || false,
             });
             form.resetDirty();
         }
-    }, [selectedRole]);
+    }, [selectedJobCatalog]);
 
     const fetchJobCatalog = async () => {
         setLoading(true);
         try {
+            console.log("HIT 2");
             const response = await dispatch(getJobCatalog(jobId));
-            if (response.type === "user/getJobCatalog/rejected") {
+            if (response.type === "setting/getJobCatalog/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             }
         } catch (e) {
@@ -105,7 +111,7 @@ const AddEditJobCatalog = () => {
                     isEditMode ? "Job catalog updated successfully" : "Job catalog saved successfully",
                     "SUCCESS"
                 );
-                navigate("/app/settings/job-catalogs");
+                navigate("/app/settings/job-catalog");
             }
         } catch (e) {
             console.error(e);
