@@ -9,6 +9,7 @@ import toNotify from "../../../helpers/toNotify.tsx";
 import { useLoading } from "../../../helpers/loadingContext.tsx";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { isValidEmail, isValidPhone } from "../../../utils/inputValidators.ts";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface UserFormValues {
     name: string;
@@ -26,6 +27,7 @@ const CompanyProfile = () => {
     const { setLoading } = useLoading();
     const dispatch = useDispatch<AppDispatch>();
     const [isEditMode, setIsEditMode] = useState(false);
+    const isMobile = useMediaQuery("(max-width: 768px)");
 
     const selectedUser = useSelector((state: RootState) => state.user.selectedUser);
     const organizationData = useSelector((state: RootState) => state.user.organizationData);
@@ -177,8 +179,9 @@ const CompanyProfile = () => {
                         <Group>
                             <Button
                                 leftSection={<IconKeyboard size={20} />}
-                                size="xs"
+                                fullWidth={isMobile}
                                 onClick={() => setIsEditMode(true)}
+                                size="sm"
                             >
                                 Change Your User Details
                             </Button>

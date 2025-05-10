@@ -49,6 +49,8 @@ const EditPassengerStatus = React.lazy(() => import("./pages/Settings/PassengerS
 const PassengerDocuments = React.lazy(() => import("./pages/Settings/PassengerDocumentTypes"));
 const JobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs"));
 const AddEditJobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs/AddEditJobCatalog.tsx"));
+const Qualifications = React.lazy(() => import("./pages/Settings/Qualifications"));
+const Countries = React.lazy(() => import("./pages/Settings/Countries"));
 
 const router = createBrowserRouter([
     {
@@ -113,12 +115,20 @@ const router = createBrowserRouter([
                 element: <PassengerDocuments />,
             },
             {
-                path: "settings/job-catalogs",
+                path: "settings/job-catalog",
                 element: <JobCatalogs />,
             },
             {
-                path: "settings/job-catalogs/add-edit",
+                path: "settings/job-catalog/add-edit",
                 element: <AddEditJobCatalogs />,
+            },
+            {
+                path: "settings/qualifications",
+                element: <Qualifications />,
+            },
+            {
+                path: "settings/countries",
+                element: <Countries />,
             },
 
             // etc.

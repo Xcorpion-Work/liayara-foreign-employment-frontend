@@ -92,7 +92,7 @@ const ViewRole = () => {
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Status:
+                                    Permissions:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
                                     {selectedRole.permissionsData?.map((p: any, i: number) => (

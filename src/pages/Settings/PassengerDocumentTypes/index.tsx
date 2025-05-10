@@ -14,7 +14,7 @@ import {
     TextInput,
     Textarea,
 } from "@mantine/core";
-import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconPencil } from "@tabler/icons-react";
+import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconMobiledataOff, IconPencil } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
@@ -29,6 +29,8 @@ import {
 } from "../../../store/settingSlice/settingSlice.ts";
 import { usePermission } from "../../../helpers/previlleges.ts";
 import { isNotEmpty, useForm } from "@mantine/form";
+import ConfirmModal from "../../../components/confirmModal.tsx";
+import { updateRole } from "../../../store/userSlice/userSlice.ts";
 
 const PassengerDocuments = () => {
     const navigate = useNavigate();
@@ -41,6 +43,12 @@ const PassengerDocuments = () => {
     const [documentTypeAddModalOpened, documentTypeModalHandle] = useDisclosure(false);
     const [isEdit, setIsEdit] = useState(false);
     const [id, setId] = useState("");
+    const [confirmModal, setConfirmModal] = useState({
+        opened: false,
+        id: "",
+        status: false,
+    });
+    const [confirmType, setConfirmType] = useState<"activate" | "deactivate">("activate");
 
     useEffect(() => {
         fetchAllPassengerDocumentTypes();
@@ -69,6 +77,11 @@ const PassengerDocuments = () => {
             ?.replace(/\b\w/g, (char) => char.toUpperCase());
     };
 
+    const openConfirmModal = (id: string, newStatus: boolean) => {
+        setConfirmModal({ opened: true, id, status: newStatus });
+        setConfirmType(newStatus ? "activate" : "deactivate");
+    };
+
     // 🔥 Extracted view
     let contentView;
     const passengerDocumentTypes = Array.isArray(allPassengerDocumentTypes)
@@ -81,9 +94,15 @@ const PassengerDocuments = () => {
                     <Box key={psd._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
-                                <Badge radius="sm" variant="outline">
-                                    {transformToTitle(psd.name)}
-                                </Badge>
+                                <Stack>
+                                    <Badge radius="sm" variant="outline">
+                                        {transformToTitle(psd.name)}
+                                    </Badge>
+                                    <Text size="sm">{psd.description || "-"}</Text>
+                                    <Badge color={psd.status ? "green" : "red"} radius="sm">
+                                        {psd.status ? "ACTIVE" : "INACTIVE"}
+                                    </Badge>
+                                </Stack>
 
                                 {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
@@ -111,8 +130,9 @@ const PassengerDocuments = () => {
             <Table highlightOnHover withRowBorders={true}>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th w="30%">Name</Table.Th>
-                        <Table.Th w="40%">Description</Table.Th>
+                        <Table.Th w="20%">Name</Table.Th>
+                        <Table.Th w="30%">Description</Table.Th>
+                        <Table.Th w="20%">Status</Table.Th>
                         <Table.Th w="30%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
@@ -126,6 +146,11 @@ const PassengerDocuments = () => {
                             </Table.Td>
                             <Table.Td>{psd.description || "-"}</Table.Td>
                             <Table.Td>
+                                <Badge color={psd.status ? "green" : "red"} radius="sm">
+                                    {psd.status ? "ACTIVE" : "INACTIVE"}
+                                </Badge>
+                            </Table.Td>{" "}
+                            <Table.Td>
                                 {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
                                     <Button
                                         size="xs"
@@ -134,6 +159,16 @@ const PassengerDocuments = () => {
                                         onClick={() => setDataForEdit(psd)}
                                     >
                                         Edit
+                                    </Button>
+                                )}{" "}
+                                {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
+                                    <Button
+                                        size="xs"
+                                        leftSection={<IconMobiledataOff size={20} />}
+                                        color={psd.status ? "red" : "green"}
+                                        onClick={() => openConfirmModal(psd._id, !psd.status)}
+                                    >
+                                        {psd.status ? "Deactivate" : "Activate"}
                                     </Button>
                                 )}
                             </Table.Td>
@@ -210,6 +245,28 @@ const PassengerDocuments = () => {
         }
     };
 
+    const handleConfirmStatus = async () => {
+        setConfirmModal((prev) => ({ ...prev, opened: false }));
+        if (!confirmModal.id) return;
+
+        setLoading(true);
+        try {
+            const payload = { id: confirmModal.id, status: confirmModal.status };
+            const response = await dispatch(updateRole(payload));
+            if (response.type === "user/updateRole/rejected") {
+                toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
+            } else {
+                toNotify("Success", "Role updated successfully", "SUCCESS");
+                fetchAllPassengerDocumentTypes();
+            }
+        } catch (e) {
+            console.error(e);
+            toNotify("Something went wrong", "Please contact system admin", "WARNING");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             {/* Header */}
@@ -283,6 +340,22 @@ const PassengerDocuments = () => {
                     </Stack>
                 </form>
             </Modal>
+
+            {/* Confirm Modal */}
+            <ConfirmModal
+                opened={confirmModal.opened}
+                onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
+                onConfirm={handleConfirmStatus}
+                title={confirmType === "activate" ? "Activate Role" : "Deactivate Role"}
+                message={
+                    confirmType === "activate"
+                        ? "Are you sure you want to activate this role?"
+                        : "Are you sure you want to deactivate this role?"
+                }
+                confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
+                cancelLabel="Cancel"
+                confirmColor={confirmType === "activate" ? "green" : "red"}
+            />
         </>
     );
 };

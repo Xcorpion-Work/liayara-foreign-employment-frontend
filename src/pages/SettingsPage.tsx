@@ -2,12 +2,12 @@ import { ActionIcon, Box, Card, Divider, Group, SimpleGrid, Stack, Text } from "
 import xcorpion from "../assets/xcorpion.png";
 import {
     IconBriefcase,
-    IconBuilding,
+    IconBuilding, IconCertificate,
     IconFile,
     IconShieldLock,
     IconStairs,
     IconUser,
-    IconUsersGroup,
+    IconUsersGroup, IconWorld,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../helpers/previlleges.ts";
@@ -65,12 +65,28 @@ const SettingsPage = () => {
             onClick: () => navigate("/app/settings/passenger-documents"),
         },
         {
-            title: "Job Catalogs",
+            title: "Job Catalog",
             description: "Customize job catalog of your company",
             icon: <IconBriefcase size={20} />,
             color: "grey",
             permissions: ["VIEW.JOB.CATALOG"],
-            onClick: () => navigate("/app/settings/job-catalogs"),
+            onClick: () => navigate("/app/settings/job-catalog"),
+        },
+        {
+            title: "Countries",
+            description: "Customize countries which your company dealing with",
+            icon: <IconWorld size={20} />,
+            color: "indigo",
+            permissions: ["VIEW.COUNTRY"],
+            onClick: () => navigate("/app/settings/countries"),
+        },
+        {
+            title: "Qualifications",
+            description: "Customize your passengers language and job qualifications",
+            icon: <IconCertificate size={20} />,
+            color: "cyan",
+            permissions: ["VIEW.QUALIFICATION"],
+            onClick: () => navigate("/app/settings/qualifications"),
         },
     ];
 

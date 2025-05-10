@@ -3,7 +3,6 @@ import {
     IconArrowLeft,
     IconDatabaseOff,
     IconDotsVertical,
-    IconEye,
     IconMobiledataOff,
     IconPencil,
 } from "@tabler/icons-react";
@@ -23,7 +22,7 @@ const JobCatalogs = () => {
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
     const dispatch = useDispatch<AppDispatch>();
     const { setLoading } = useLoading();
-    const allJobcatalogs = useSelector((state: RootState) => state.setting.jobCatalogs);
+    const allJobCatalogs = useSelector((state: RootState) => state.setting.jobCatalogs);
     const isMobile = useMediaQuery("(max-width: 768px)");
 
     const [confirmModal, setConfirmModal] = useState({
@@ -55,8 +54,8 @@ const JobCatalogs = () => {
 
     // 🔥 Extracted view
     let contentView;
-    const jobCatalogs = Array.isArray(allJobcatalogs)
-        ? [...allJobcatalogs].sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
+    const jobCatalogs = Array.isArray(allJobCatalogs)
+        ? [...allJobCatalogs].sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
         : [];
     if (Array.isArray(jobCatalogs) && jobCatalogs.length > 0) {
         contentView = isMobile ? (
@@ -70,9 +69,7 @@ const JobCatalogs = () => {
                                         <Text size="lg" fw={"bold"}>
                                             {jc?.name || "-"}
                                         </Text>
-                                        <Text size="lg">
-                                            : {jc.specification ? `(${jc.specification})` : "-"}
-                                        </Text>
+                                        <Text size="lg">: {jc.specification ? `(${jc.specification})` : "-"}</Text>
                                     </Flex>
 
                                     <Group>
@@ -93,11 +90,13 @@ const JobCatalogs = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.JOB.CATALOG") && (
-                                                <Menu.Item leftSection={<IconEye size={18} />}>View</Menu.Item>
-                                            )}
                                             {hasPrivilege("EDIT.JOB.CATALOG") && (
-                                                <Menu.Item leftSection={<IconPencil size={18} />}>Edit</Menu.Item>
+                                                <Menu.Item
+                                                    leftSection={<IconPencil size={18} />}
+                                                    onClick={() => navigate(`/app/settings/job-catalog/add-edit?id=${jc._id}`)}
+                                                >
+                                                    Edit
+                                                </Menu.Item>
                                             )}
                                             {hasPrivilege("EDIT.JOB.CATALOG") && (
                                                 <Menu.Item
@@ -143,17 +142,13 @@ const JobCatalogs = () => {
                                 </Badge>
                             </Table.Td>
                             <Table.Td>
-                                {hasPrivilege("VIEW.JOB.CATALOG") && (
+                                {hasPrivilege("EDIT.JOB.CATALOG") && (
                                     <Button
                                         size="xs"
-                                        leftSection={<IconEye size={20} />}
-                                        onClick={() => navigate(`/app/settings/role-management/view/${jc._id}`)}
+                                        leftSection={<IconPencil size={20} />}
+                                        color="violet"
+                                        onClick={() => navigate(`/app/settings/job-catalog/add-edit?id=${jc._id}`)}
                                     >
-                                        View
-                                    </Button>
-                                )}{" "}
-                                {hasPrivilege("EDIT.JOB.CATALOG") && (
-                                    <Button size="xs" leftSection={<IconPencil size={20} />} color="violet">
                                         Edit
                                     </Button>
                                 )}{" "}
@@ -223,7 +218,7 @@ const JobCatalogs = () => {
                             <Group className="cursor-pointer" onClick={() => navigate("/app/settings")}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    Job Catalogs
+                                    Job Catalog
                                 </Text>
                             </Group>
 
@@ -231,7 +226,7 @@ const JobCatalogs = () => {
                                 <Button
                                     size="sm"
                                     onClick={() => {
-                                        navigate("/app/settings/job-catalogs/add-edit");
+                                        navigate("/app/settings/job-catalog/add-edit");
                                     }}
                                 >
                                     + Add Job Catalog

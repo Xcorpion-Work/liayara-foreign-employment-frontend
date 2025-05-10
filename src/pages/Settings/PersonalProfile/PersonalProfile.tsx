@@ -250,13 +250,15 @@ const PersonalProfile = () => {
                 <Box className="h-full w-full">
                     {!isEditMode && (
                         <Group>
-                            <Button leftSection={<IconKey size={20} />} size="xs" onClick={openPasswordModal}>
+                            <Button leftSection={<IconKey size={20} />} onClick={openPasswordModal} fullWidth={isMobile} size="sm">
                                 Change Your Password
                             </Button>
                             <Button
                                 leftSection={<IconKeyboard size={20} />}
-                                size="xs"
                                 onClick={() => setIsEditMode(true)}
+                                fullWidth={isMobile}
+                                color="violet"
+                                size="sm"
                             >
                                 Change Your User Details
                             </Button>
