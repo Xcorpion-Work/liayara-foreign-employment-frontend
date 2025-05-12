@@ -1,11 +1,5 @@
 import { Box, Button, Divider, Group, Stack, Text, Table, Card, Menu, ActionIcon, Badge, Flex } from "@mantine/core";
-import {
-    IconArrowLeft,
-    IconDatabaseOff,
-    IconDotsVertical,
-    IconMobiledataOff,
-    IconPencil,
-} from "@tabler/icons-react";
+import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconMobiledataOff, IconPencil } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
@@ -82,18 +76,21 @@ const JobCatalogs = () => {
                                     </Badge>
                                 </Stack>
 
-                                {hasAnyPrivilege(["EDIT.JOB.CATALOG", "VIEW.JOB.CATALOG"]) && (
+                                {hasAnyPrivilege(["EDIT.JOB.CATALOG"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
                                                 <IconDotsVertical size={18} />
                                             </ActionIcon>
                                         </Menu.Target>
+
                                         <Menu.Dropdown>
                                             {hasPrivilege("EDIT.JOB.CATALOG") && (
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
-                                                    onClick={() => navigate(`/app/settings/job-catalog/add-edit?id=${jc._id}`)}
+                                                    onClick={() =>
+                                                        navigate(`/app/settings/job-catalog/add-edit?id=${jc._id}`)
+                                                    }
                                                 >
                                                     Edit
                                                 </Menu.Item>
@@ -251,11 +248,11 @@ const JobCatalogs = () => {
                 opened={confirmModal.opened}
                 onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
                 onConfirm={handleConfirmStatus}
-                title={confirmType === "activate" ? "Activate Role" : "Deactivate Role"}
+                title={confirmType === "activate" ? "Activate Job Catalog" : "Deactivate Job Catalog"}
                 message={
                     confirmType === "activate"
-                        ? "Are you sure you want to activate this role?"
-                        : "Are you sure you want to deactivate this role?"
+                        ? "Are you sure you want to activate this job catalog?"
+                        : "Are you sure you want to deactivate this job catalog?"
                 }
                 confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
                 cancelLabel="Cancel"

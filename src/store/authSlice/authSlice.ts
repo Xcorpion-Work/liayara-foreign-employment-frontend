@@ -99,9 +99,6 @@ const authSlice = createSlice({
                 localStorage.setItem("REFRESH_TOKEN", refreshToken);
             })
             .addCase(forgotPassword.fulfilled, () => {})
-            .addCase(changePassword.fulfilled, (state: Draft<AuthState>, action: PayloadAction<any>) => {
-                state.user = action.payload.response;
-            })
             .addCase(confirmUserLogin.fulfilled, (state: Draft<AuthState>, action: PayloadAction<any>) => {
                 state.user = action.payload.response;
             })

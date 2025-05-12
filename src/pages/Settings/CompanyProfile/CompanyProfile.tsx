@@ -10,6 +10,7 @@ import { useLoading } from "../../../helpers/loadingContext.tsx";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { isValidEmail, isValidPhone } from "../../../utils/inputValidators.ts";
 import { useMediaQuery } from "@mantine/hooks";
+import { usePermission } from "../../../helpers/previlleges.ts";
 
 interface UserFormValues {
     name: string;
@@ -24,12 +25,12 @@ interface UserFormValues {
 
 const CompanyProfile = () => {
     const navigate = useNavigate();
+    const {hasPrivilege} = usePermission();
     const { setLoading } = useLoading();
     const dispatch = useDispatch<AppDispatch>();
     const [isEditMode, setIsEditMode] = useState(false);
     const isMobile = useMediaQuery("(max-width: 768px)");
 
-    const selectedUser = useSelector((state: RootState) => state.user.selectedUser);
     const organizationData = useSelector((state: RootState) => state.user.organizationData);
 
     useEffect(() => {
@@ -38,16 +39,16 @@ const CompanyProfile = () => {
 
     useEffect(() => {
         setLoading(true);
-        if (selectedUser && isEditMode) {
+        if (organizationData && isEditMode) {
             form.setValues({
                 name: organizationData.name || "",
                 phone: organizationData.phone || "",
-                altPhone: selectedUser.altPhone || "",
-                email: selectedUser.email || "",
-                faxNo: selectedUser.faxNo || "",
-                address: selectedUser.address || "",
-                licenceCode: selectedUser.licenceCode || "",
-                embassyRegNo: selectedUser.embassyRegNo || "",
+                altPhone: organizationData.altPhone || "",
+                email: organizationData.email || "",
+                faxNo: organizationData.faxNo || "",
+                address: organizationData.address || "",
+                licenceCode: organizationData.licenceCode || "",
+                embassyRegNo: organizationData.embassyRegNo || "",
             });
             form.resetDirty();
         }
@@ -131,7 +132,7 @@ const CompanyProfile = () => {
     const handleSubmitOrganizationData = async () => {
         setLoading(true);
         try {
-            const payload = form.values;
+            const payload = { ...form.values, id: organizationData._id };
 
             const response = await dispatch(updateOrganizationData(payload));
 
@@ -175,7 +176,7 @@ const CompanyProfile = () => {
             {/* Content */}
             <Box display="flex" px="lg" pb="lg" className="items-center justify-between">
                 <Box className="h-full w-full">
-                    {!isEditMode && (
+                    {!isEditMode && hasPrivilege("EDIT.ORGANIZATION.DATA") && (
                         <Group>
                             <Button
                                 leftSection={<IconKeyboard size={20} />}
@@ -239,7 +240,7 @@ const CompanyProfile = () => {
                                 {/* NIC */}
                                 <Table.Tr>
                                     <Table.Td fw="bold">Embassy Registration Number:</Table.Td>
-                                    <Table.Td>{selectedUser?.embassyRegNo || "-"}</Table.Td>
+                                    <Table.Td>{organizationData?.embassyRegNo || "-"}</Table.Td>
                                 </Table.Tr>
                             </Table.Tbody>
                         </Table>
@@ -266,7 +267,6 @@ const CompanyProfile = () => {
                                 <TextInput
                                     label="Phone 2"
                                     placeholder="Enter phone number 2"
-                                    withAsterisk
                                     {...form.getInputProps("altPhone")}
                                 />
                                 <TextInput
@@ -278,7 +278,6 @@ const CompanyProfile = () => {
                                 <TextInput
                                     label="Fax No"
                                     placeholder="Enter fax number"
-                                    withAsterisk
                                     {...form.getInputProps("faxNo")}
                                 />
                                 <Textarea

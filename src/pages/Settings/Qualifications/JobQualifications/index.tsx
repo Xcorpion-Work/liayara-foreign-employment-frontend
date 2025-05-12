@@ -197,7 +197,6 @@ const JobQualifications = () => {
                                                     {jq.status ? "Deactivate" : "Activate"}
                                                 </Menu.Item>
                                             )}
-
                                         </Menu.Dropdown>
                                     </Menu>
                                 )}
@@ -231,7 +230,7 @@ const JobQualifications = () => {
                                 </Badge>
                             </Table.Td>{" "}
                             <Table.Td>
-                                {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
+                                {hasPrivilege("EDIT.QUALIFICATION") && (
                                     <Button
                                         size="xs"
                                         leftSection={<IconPencil size={20} />}
@@ -241,7 +240,7 @@ const JobQualifications = () => {
                                         Edit
                                     </Button>
                                 )}{" "}
-                                {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
+                                {hasPrivilege("EDIT.QUALIFICATION") && (
                                     <Button
                                         size="xs"
                                         leftSection={<IconMobiledataOff size={20} />}
@@ -336,12 +335,12 @@ const JobQualifications = () => {
                 onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
                 onConfirm={handleConfirmStatus}
                 title={
-                    confirmType === "activate" ? "Activate Language Qualification" : "Deactivate Language Qualification"
+                    confirmType === "activate" ? "Activate Job Qualification" : "Deactivate Job Qualification"
                 }
                 message={
                     confirmType === "activate"
-                        ? "Are you sure you want to activate this language qualification?"
-                        : "Are you sure you want to deactivate this language qualification?"
+                        ? "Are you sure you want to activate this job qualification?"
+                        : "Are you sure you want to deactivate this job qualification?"
                 }
                 confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
                 cancelLabel="Cancel"

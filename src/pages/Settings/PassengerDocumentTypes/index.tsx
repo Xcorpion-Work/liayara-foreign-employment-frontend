@@ -30,7 +30,6 @@ import {
 import { usePermission } from "../../../helpers/previlleges.ts";
 import { isNotEmpty, useForm } from "@mantine/form";
 import ConfirmModal from "../../../components/confirmModal.tsx";
-import { updateRole } from "../../../store/userSlice/userSlice.ts";
 
 const PassengerDocuments = () => {
     const navigate = useNavigate();
@@ -57,7 +56,7 @@ const PassengerDocuments = () => {
     const fetchAllPassengerDocumentTypes = async () => {
         setLoading(true);
         try {
-            const filters = { status: true };
+            const filters = {};
             const response = await dispatch(getAllPassengerDocumentTypes({ filters }));
             if (response.type === "setting/getAllPassengerDocumentTypes/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
@@ -117,6 +116,13 @@ const PassengerDocuments = () => {
                                                 onClick={() => setDataForEdit(psd)}
                                             >
                                                 Edit
+                                            </Menu.Item>
+                                            <Menu.Item
+                                                leftSection={<IconMobiledataOff size={18} />}
+                                                color={psd.status ? "red" : "green"}
+                                                onClick={() => openConfirmModal(psd._id, !psd.status)}
+                                            >
+                                                {psd.status ? "Deactivate" : "Activate"}
                                             </Menu.Item>
                                         </Menu.Dropdown>
                                     </Menu>
@@ -252,11 +258,11 @@ const PassengerDocuments = () => {
         setLoading(true);
         try {
             const payload = { id: confirmModal.id, status: confirmModal.status };
-            const response = await dispatch(updateRole(payload));
-            if (response.type === "user/updateRole/rejected") {
+            const response = await dispatch(updatePassengerDocumentType(payload));
+            if (response.type === "user/updatePassengerDocumentType/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
-                toNotify("Success", "Role updated successfully", "SUCCESS");
+                toNotify("Success", "Passenger document type updated successfully", "SUCCESS");
                 fetchAllPassengerDocumentTypes();
             }
         } catch (e) {
@@ -346,11 +352,11 @@ const PassengerDocuments = () => {
                 opened={confirmModal.opened}
                 onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
                 onConfirm={handleConfirmStatus}
-                title={confirmType === "activate" ? "Activate Role" : "Deactivate Role"}
+                title={confirmType === "activate" ? "Activate Passenger Document Type" : "Deactivate Passenger Document Type"}
                 message={
                     confirmType === "activate"
-                        ? "Are you sure you want to activate this role?"
-                        : "Are you sure you want to deactivate this role?"
+                        ? "Are you sure you want to activate this Passenger Document Type?"
+                        : "Are you sure you want to deactivate this Passenger Document Type?"
                 }
                 confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
                 cancelLabel="Cancel"
