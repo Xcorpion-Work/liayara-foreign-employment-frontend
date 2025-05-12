@@ -111,7 +111,7 @@ const LanguageQualifications = () => {
                                     </Badge>
                                 </Stack>
 
-                                {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
+                                {hasPrivilege("EDIT.QUALIFICATION") && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -157,11 +157,13 @@ const LanguageQualifications = () => {
                             </Badge>
 
                             {/* Toggle */}
-                            <Switch
-                                size="sm"
-                                checked={lq.status}
-                                onChange={() => openConfirmModal(lq._id, !lq.status)}
-                            />
+                            {hasPrivilege("EDIT.QUALIFICATION") && (
+                                <Switch
+                                    size="sm"
+                                    checked={lq.status}
+                                    onChange={() => openConfirmModal(lq._id, !lq.status)}
+                                />
+                            )}
                         </Group>
                     </Card>
                 ))}
@@ -244,7 +246,7 @@ const LanguageQualifications = () => {
                 <Box className="h-full w-full">
                     <Stack gap={1}>
                         <Group justify="space-between" align="center" w="100%">
-                            {hasPrivilege("CREATE.PASSENGER.DOCUMENT.TYPE") && (
+                            {hasPrivilege("CREATE.QUALIFICATION") && (
                                 <Button
                                     size="sm"
                                     onClick={() => {

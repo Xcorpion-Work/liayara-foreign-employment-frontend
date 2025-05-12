@@ -30,10 +30,12 @@ import toNotify from "../../../helpers/toNotify.tsx";
 import { pageRange } from "../../../helpers/preview.tsx";
 import { useMediaQuery } from "@mantine/hooks";
 import ConfirmModal from "../../../components/confirmModal.tsx";
+import { usePermission } from "../../../helpers/previlleges.ts";
 
 const RoleManagement = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
+    const { hasPrivilege, hasAnyPrivilege } = usePermission();
     const { setLoading } = useLoading();
     const pageSize = 10;
     const [page, setPage] = useState(1);
@@ -106,38 +108,53 @@ const RoleManagement = () => {
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
                                 <Text fw="bold">{role.name}</Text>
-                                <Menu withinPortal position="bottom-end" shadow="md">
-                                    <Menu.Target>
-                                        <ActionIcon variant="subtle" color="gray">
-                                            <IconDotsVertical size={18} />
-                                        </ActionIcon>
-                                    </Menu.Target>
-                                    <Menu.Dropdown>
-                                        <Menu.Item
-                                            leftSection={<IconEye size={18} />}
-                                            onClick={() => navigate(`/app/settings/role-management/view/${role._id}`)}
-                                        >
-                                            View
-                                        </Menu.Item>
-                                        {role.name !== "Super Admin" && (
-                                            <>
+                                {hasAnyPrivilege(["VIEW.ROLE", "EDIT.ROLE"]) && (
+                                    <Menu withinPortal position="bottom-end" shadow="md">
+                                        <Menu.Target>
+                                            <ActionIcon variant="subtle" color="gray">
+                                                <IconDotsVertical size={18} />
+                                            </ActionIcon>
+                                        </Menu.Target>
+                                        <Menu.Dropdown>
+                                            {hasPrivilege("VIEW.ROLE") && (
                                                 <Menu.Item
-                                                    leftSection={<IconPencil size={18} />}
-                                                    onClick={() => navigate(`/app/settings/role-management/add-edit?id=${role._id}`)}
+                                                    leftSection={<IconEye size={18} />}
+                                                    onClick={() =>
+                                                        navigate(`/app/settings/role-management/view/${role._id}`)
+                                                    }
                                                 >
-                                                    Edit
+                                                    View
                                                 </Menu.Item>
-                                                <Menu.Item
-                                                    leftSection={<IconMobiledataOff size={18} />}
-                                                    color={role.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(role._id, !role.status)}
-                                                >
-                                                    {role.status ? "Deactivate" : "Activate"}
-                                                </Menu.Item>
-                                            </>
-                                        )}
-                                    </Menu.Dropdown>
-                                </Menu>
+                                            )}
+
+                                            {role.name !== "Super Admin" && (
+                                                <>
+                                                    {hasPrivilege("EDIT.ROLE") && (
+                                                        <Menu.Item
+                                                            leftSection={<IconPencil size={18} />}
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/app/settings/role-management/add-edit?id=${role._id}`
+                                                                )
+                                                            }
+                                                        >
+                                                            Edit
+                                                        </Menu.Item>
+                                                    )}
+                                                    {hasPrivilege("EDIT.ROLE") && (
+                                                        <Menu.Item
+                                                            leftSection={<IconMobiledataOff size={18} />}
+                                                            color={role.status ? "red" : "green"}
+                                                            onClick={() => openConfirmModal(role._id, !role.status)}
+                                                        >
+                                                            {role.status ? "Deactivate" : "Activate"}
+                                                        </Menu.Item>
+                                                    )}
+                                                </>
+                                            )}
+                                        </Menu.Dropdown>
+                                    </Menu>
+                                )}
                             </Group>
                             <Group mt="xs">
                                 <Badge variant="dot">{role.permissions?.length || 0} Permissions</Badge>
@@ -179,31 +196,39 @@ const RoleManagement = () => {
                                 </Badge>
                             </Table.Td>
                             <Table.Td>
-                                <Button
-                                    size="xs"
-                                    leftSection={<IconEye size={20} />}
-                                    onClick={() => navigate(`/app/settings/role-management/view/${role._id}`)}
-                                >
-                                    View
-                                </Button>{" "}
+                                {hasPrivilege("VIEW.ROLE") && (
+                                    <Button
+                                        size="xs"
+                                        leftSection={<IconEye size={20} />}
+                                        onClick={() => navigate(`/app/settings/role-management/view/${role._id}`)}
+                                    >
+                                        View
+                                    </Button>
+                                )}{" "}
                                 {role.name !== "Super Admin" && (
                                     <>
-                                        <Button
-                                            size="xs"
-                                            leftSection={<IconPencil size={20} />}
-                                            color="violet"
-                                            onClick={() => navigate(`/app/settings/role-management/add-edit?id=${role._id}`)}
-                                        >
-                                            Edit
-                                        </Button>{" "}
-                                        <Button
-                                            size="xs"
-                                            leftSection={<IconMobiledataOff size={20} />}
-                                            color={role.status ? "red" : "green"}
-                                            onClick={() => openConfirmModal(role._id, !role.status)}
-                                        >
-                                            {role.status ? "Deactivate" : "Activate"}
-                                        </Button>
+                                        {hasPrivilege("EDIT.ROLE") && (
+                                            <Button
+                                                size="xs"
+                                                leftSection={<IconPencil size={20} />}
+                                                color="violet"
+                                                onClick={() =>
+                                                    navigate(`/app/settings/role-management/add-edit?id=${role._id}`)
+                                                }
+                                            >
+                                                Edit
+                                            </Button>
+                                        )}{" "}
+                                        {hasPrivilege("EDIT.ROLE") && (
+                                            <Button
+                                                size="xs"
+                                                leftSection={<IconMobiledataOff size={20} />}
+                                                color={role.status ? "red" : "green"}
+                                                onClick={() => openConfirmModal(role._id, !role.status)}
+                                            >
+                                                {role.status ? "Deactivate" : "Activate"}
+                                            </Button>
+                                        )}
                                     </>
                                 )}
                             </Table.Td>
@@ -239,9 +264,11 @@ const RoleManagement = () => {
                                 </Text>
                             </Group>
 
-                            <Button size="sm" onClick={() => navigate("/app/settings/role-management/add-edit")}>
-                                + Add Role
-                            </Button>
+                            {hasPrivilege("CREATE.ROLE") && (
+                                <Button size="sm" onClick={() => navigate("/app/settings/role-management/add-edit")}>
+                                    + Add Role
+                                </Button>
+                            )}
                         </Group>
                         <Group>
                             <Text size="xs">Manage your company roles and permissions</Text>

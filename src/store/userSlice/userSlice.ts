@@ -122,6 +122,25 @@ export const getUser = createAsyncThunk("user/getUser", async (id: any, { reject
     }
 });
 
+export const getPersonalData = createAsyncThunk("user/getPersonalData", async (id: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/users/personal-data/${id}`);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+export const updatePersonalData = createAsyncThunk("user/updatePersonalData", async (payload: any, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.put(`/users/personal-data/${payload.id}`, payload);
+        return response.data;
+    } catch (err: any) {
+        throw rejectWithValue(err.response.data);
+    }
+});
+
+
 export const updateUser = createAsyncThunk("user/updateUser", async (payload: any, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.put(`/users/user/${payload.id}`, payload);
@@ -204,6 +223,12 @@ const userSlice = createSlice({
         });
         builder.addCase(updateOrganizationData.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
             state.organizationData = action.payload.response;
+        });
+        builder.addCase(getPersonalData.fulfilled, (state: Draft<UserState>, action: PayloadAction<any>) => {
+            state.selectedUser = action.payload.response;
+        });
+        builder.addCase(updatePersonalData.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload;
         });
     },
 });

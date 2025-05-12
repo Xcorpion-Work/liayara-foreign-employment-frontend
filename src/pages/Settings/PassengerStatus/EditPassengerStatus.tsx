@@ -137,7 +137,7 @@ const EditPassengerStatus = () => {
                             </Group>
                         </Group>
                         <Group>
-                            <Text size="xs">Edit roles which have permissions to approve</Text>
+                            <Text size="xs">Edit roles which have permissions to approve passenger status</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>

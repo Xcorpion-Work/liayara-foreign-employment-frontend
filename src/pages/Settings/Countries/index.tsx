@@ -80,7 +80,7 @@ const Countries = () => {
             if (response.type === "setting/updateCountry/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
-                toNotify("Success", "Job catalog updated successfully", "SUCCESS");
+                toNotify("Success", "Country updated successfully", "SUCCESS");
                 fetchAllCountries();
             }
         } catch (e) {
@@ -126,7 +126,7 @@ const Countries = () => {
                                     </Badge>
                                 </Stack>
 
-                                {hasPrivilege("EDIT.PASSENGER.DOCUMENT.TYPE") && (
+                                {hasPrivilege("EDIT.COUNTRY") && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -183,11 +183,13 @@ const Countries = () => {
                         </Badge>
 
                         {/* Toggle */}
-                        <Switch
-                            size="sm"
-                            checked={country.status}
-                            onChange={() => openConfirmModal(country._id, !country.status)}
-                        />
+                        {hasPrivilege("EDIT.COUNTRY") && (
+                            <Switch
+                                size="sm"
+                                checked={country.status}
+                                onChange={() => openConfirmModal(country._id, !country.status)}
+                            />
+                        )}
                     </Group>
                 </Card>
             ))}
@@ -251,7 +253,7 @@ const Countries = () => {
                                 </Text>
                             </Group>
 
-                            {hasPrivilege("CREATE.PASSENGER.DOCUMENT.TYPE") && (
+                            {hasPrivilege("CREATE.COUNTRY") && (
                                 <Button
                                     size="sm"
                                     onClick={() => {
@@ -310,11 +312,11 @@ const Countries = () => {
                 opened={confirmModal.opened}
                 onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
                 onConfirm={handleConfirmStatus}
-                title={confirmType === "activate" ? "Activate Role" : "Deactivate Role"}
+                title={confirmType === "activate" ? "Activate Country" : "Deactivate Country"}
                 message={
                     confirmType === "activate"
-                        ? "Are you sure you want to activate this role?"
-                        : "Are you sure you want to deactivate this role?"
+                        ? "Are you sure you want to activate this country?"
+                        : "Are you sure you want to deactivate this country?"
                 }
                 confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
                 cancelLabel="Cancel"

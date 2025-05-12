@@ -37,7 +37,7 @@ const SettingsPage = () => {
             description: "Add, update and view your company employees.",
             icon: <IconUsersGroup size={20} />,
             color: "teal",
-            permissions: ["VIEW.ROLE"],
+            permissions: ["VIEW.USER"],
             onClick: () => navigate("/app/settings/user-management"),
         },
         {
