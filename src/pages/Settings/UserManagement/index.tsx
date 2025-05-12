@@ -30,6 +30,7 @@ import toNotify from "../../../helpers/toNotify.tsx";
 import { pageRange } from "../../../helpers/preview.tsx";
 import { useMediaQuery } from "@mantine/hooks";
 import ConfirmModal from "../../../components/confirmModal.tsx";
+import { usePermission } from "../../../helpers/previlleges.ts";
 
 const UserManagement = () => {
     const navigate = useNavigate();
@@ -38,6 +39,7 @@ const UserManagement = () => {
     const pageSize = 10;
     const [page, setPage] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
+    const { hasPrivilege, hasAnyPrivilege } = usePermission();
 
     const pagedUsers = useSelector((state: RootState) => state.user.users);
     const isMobile = useMediaQuery("(max-width: 768px)");
@@ -87,7 +89,7 @@ const UserManagement = () => {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
                 toNotify("Success", "User updated successfully", "SUCCESS");
-                fetchUsers();
+                await fetchUsers();
             }
         } catch (e) {
             console.error(e);
@@ -105,53 +107,67 @@ const UserManagement = () => {
             contentView = (
                 <Stack gap="md">
                     {pagedUsers.map((user: any, index: number) => (
-                        <Box key={user._id || index}>
+                        <Box key={user?._id || index}>
                             <Card withBorder p="md">
                                 <Group justify="space-between" align="flex-start">
-                                    <Text fw="bold">{user.username}</Text>
-                                    <Menu withinPortal position="bottom-end" shadow="md">
-                                        <Menu.Target>
-                                            <ActionIcon variant="subtle" color="gray">
-                                                <IconDotsVertical size={18} />
-                                            </ActionIcon>
-                                        </Menu.Target>
-                                        <Menu.Dropdown>
-                                            <Menu.Item
-                                                leftSection={<IconEye size={18} />}
-                                                onClick={() => navigate(`/app/settings/user-management/view/${user._id}`)}
-                                            >
-                                                View
-                                            </Menu.Item>
-                                            {user.roleName !== "Super Admin" && (
-                                                <>
+                                    <Text fw="bold">{user?.username}</Text>
+                                    {hasAnyPrivilege(["VIEW.USER", "EDIT.USER"]) && (
+                                        <Menu withinPortal position="bottom-end" shadow="md">
+                                            <Menu.Target>
+                                                <ActionIcon variant="subtle" color="gray">
+                                                    <IconDotsVertical size={18} />
+                                                </ActionIcon>
+                                            </Menu.Target>
+                                            <Menu.Dropdown>
+                                                {hasPrivilege("VIEW.USER") && (
                                                     <Menu.Item
-                                                        leftSection={<IconPencil size={18} />}
-                                                        onClick={() => navigate(`/app/settings/user-management/add-edit?id=${user._id}`)}
+                                                        leftSection={<IconEye size={18} />}
+                                                        onClick={() =>
+                                                            navigate(`/app/settings/user-management/view/${user?._id}`)
+                                                        }
                                                     >
-                                                        Edit
+                                                        View
                                                     </Menu.Item>
-                                                    <Menu.Item
-                                                        leftSection={<IconMobiledataOff size={18} />}
-                                                        color={user.status ? "red" : "green"}
-                                                        onClick={() => openConfirmModal(user._id, !user.status)}
-                                                    >
-                                                        {user.status ? "Deactivate" : "Activate"}
-                                                    </Menu.Item>
-                                                </>
-                                            )}
-                                        </Menu.Dropdown>
-                                    </Menu>
+                                                )}
+                                                {user?.roleName !== "Super Admin" && (
+                                                    <>
+                                                        {hasPrivilege("EDIT.USER") && (
+                                                            <>
+                                                                <Menu.Item
+                                                                    leftSection={<IconPencil size={18} />}
+                                                                    onClick={() =>
+                                                                        navigate(
+                                                                            `/app/settings/user-management/add-edit?id=${user?._id}`
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Edit
+                                                                </Menu.Item>
+                                                                <Menu.Item
+                                                                    leftSection={<IconMobiledataOff size={18} />}
+                                                                    color={user?.status ? "red" : "green"}
+                                                                    onClick={() => openConfirmModal(user._id, !user.status)}
+                                                                >
+                                                                    {user?.status ? "Deactivate" : "Activate"}
+                                                                </Menu.Item>
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </Menu.Dropdown>
+                                        </Menu>
+                                    )}
                                 </Group>
                                 <Stack gap={1} mt="xs">
-                                    <Text size="sm">{user.phone}</Text>
-                                    <Text size="sm">{user.email}</Text>
+                                    <Text size="sm">{user?.phone}</Text>
+                                    <Text size="sm">{user?.email}</Text>
                                 </Stack>
                                 <Group mt="xs">
-                                    <Badge variant="outline">{user.roleName}</Badge>
+                                    <Badge variant="outline">{user?.roleName}</Badge>
                                 </Group>
                                 <Group mt="xs">
-                                    <Badge radius="sm" color={user.status ? "green" : "red"}>
-                                        {user.status ? "ACTIVE" : "INACTIVE"}
+                                    <Badge radius="sm" color={user?.status ? "green" : "red"}>
+                                        {user?.status ? "ACTIVE" : "INACTIVE"}
                                     </Badge>
                                 </Group>
                             </Card>
@@ -174,44 +190,54 @@ const UserManagement = () => {
                     </Table.Thead>
                     <Table.Tbody>
                         {pagedUsers.map((user: any, index: number) => (
-                            <Table.Tr key={user._id || index}>
-                                <Table.Td>{user.username}</Table.Td>
-                                <Table.Td>{user.phone}</Table.Td>
-                                <Table.Td>{user.email}</Table.Td>
+                            <Table.Tr key={user?._id || index}>
+                                <Table.Td>{user?.username}</Table.Td>
+                                <Table.Td>{user?.phone}</Table.Td>
+                                <Table.Td>{user?.email}</Table.Td>
                                 <Table.Td>
-                                    <Badge variant="outline">{user.roleName}</Badge>
+                                    <Badge variant="outline">{user?.roleName}</Badge>
                                 </Table.Td>
                                 <Table.Td>
-                                    <Badge color={user.status ? "green" : "red"} radius="sm">
-                                        {user.status ? "ACTIVE" : "INACTIVE"}
+                                    <Badge color={user?.status ? "green" : "red"} radius="sm">
+                                        {user?.status ? "ACTIVE" : "INACTIVE"}
                                     </Badge>
                                 </Table.Td>
                                 <Table.Td>
-                                    <Button
-                                        size="xs"
-                                        leftSection={<IconEye size={20} />}
-                                        onClick={() => navigate(`/app/settings/user-management/view/${user._id}`)}
-                                    >
-                                        View
-                                    </Button>{" "}
-                                    {user.roleName !== "Super Admin" && (
+                                    {hasPrivilege("VIEW.USER") && (
+                                        <Button
+                                            size="xs"
+                                            leftSection={<IconEye size={20} />}
+                                            onClick={() => navigate(`/app/settings/user-management/view/${user?._id}`)}
+                                        >
+                                            View
+                                        </Button>
+                                    )}{" "}
+                                    {user?.roleName !== "Super Admin" && (
                                         <>
-                                            <Button
-                                                size="xs"
-                                                leftSection={<IconPencil size={20} />}
-                                                color="violet"
-                                                onClick={() => navigate(`/app/settings/user-management/add-edit?id=${user._id}`)}
-                                            >
-                                                Edit
-                                            </Button>{" "}
-                                            <Button
-                                                size="xs"
-                                                leftSection={<IconMobiledataOff size={20} />}
-                                                color={user.status ? "red" : "green"}
-                                                onClick={() => openConfirmModal(user._id, !user.status)}
-                                            >
-                                                {user.status ? "Deactivate" : "Activate"}
-                                            </Button>
+                                            {hasPrivilege("EDIT.USER") && (
+                                                <>
+                                                    <Button
+                                                        size="xs"
+                                                        leftSection={<IconPencil size={20} />}
+                                                        color="violet"
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/app/settings/user-management/add-edit?id=${user?._id}`
+                                                            )
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Button>{" "}
+                                                    <Button
+                                                        size="xs"
+                                                        leftSection={<IconMobiledataOff size={20} />}
+                                                        color={user.status ? "red" : "green"}
+                                                        onClick={() => openConfirmModal(user?._id, !user?.status)}
+                                                    >
+                                                        {user?.status ? "Deactivate" : "Activate"}
+                                                    </Button>
+                                                </>
+                                            )}
                                         </>
                                     )}
                                 </Table.Td>
@@ -248,9 +274,11 @@ const UserManagement = () => {
                                 </Text>
                             </Group>
 
-                            <Button size="sm" onClick={() => navigate("/app/settings/user-management/add-edit")}>
-                                + Add User
-                            </Button>
+                            {hasPrivilege("CREATE.USER") && (
+                                <Button size="sm" onClick={() => navigate("/app/settings/user-management/add-edit")}>
+                                    + Add User
+                                </Button>
+                            )}
                         </Group>
                         <Group>
                             <Text size="xs">Manage your company users</Text>
@@ -300,7 +328,6 @@ const UserManagement = () => {
                 cancelLabel="Cancel"
                 confirmColor={confirmType === "activate" ? "green" : "red"}
             />
-
         </>
     );
 };

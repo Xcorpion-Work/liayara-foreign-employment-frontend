@@ -36,7 +36,7 @@ const PinInputPage = React.lazy(() => import("./pages/PinInputPage.tsx"));
 const AppLayout = React.lazy(() => import("./layouts/AppLayout.tsx"));
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
-const CompanyProfile = React.lazy(() => import("./pages/Settings/CompanyProfile.tsx"));
+const CompanyProfile = React.lazy(() => import("./pages/Settings/CompanyProfile/CompanyProfile.tsx"));
 const PersonalProfile = React.lazy(() => import("./pages/Settings/PersonalProfile/PersonalProfile.tsx"));
 const UserManagement = React.lazy(() => import("./pages/Settings/UserManagement"));
 const RoleManagement = React.lazy(() => import("./pages/Settings/RoleManagement"));
@@ -44,6 +44,13 @@ const AddEditRole = React.lazy(() => import("./pages/Settings/RoleManagement/Add
 const ViewRole = React.lazy(() => import("./pages/Settings/RoleManagement/ViewRole.tsx"));
 const ViewUser = React.lazy(() => import("./pages/Settings/UserManagement/ViewUser.tsx"));
 const AddEditUser = React.lazy(() => import("./pages/Settings/UserManagement/AddEditUser.tsx"));
+const PassengerStatus = React.lazy(() => import("./pages/Settings/PassengerStatus"));
+const EditPassengerStatus = React.lazy(() => import("./pages/Settings/PassengerStatus/EditPassengerStatus.tsx"));
+const PassengerDocuments = React.lazy(() => import("./pages/Settings/PassengerDocumentTypes"));
+const JobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs"));
+const AddEditJobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs/AddEditJobCatalog.tsx"));
+const Qualifications = React.lazy(() => import("./pages/Settings/Qualifications"));
+const Countries = React.lazy(() => import("./pages/Settings/Countries"));
 
 const router = createBrowserRouter([
     {
@@ -94,6 +101,34 @@ const router = createBrowserRouter([
             {
                 path: "settings/role-management/view/:id",
                 element: <ViewRole />,
+            },
+            {
+                path: "settings/passenger-status",
+                element: <PassengerStatus />,
+            },
+            {
+                path: "settings/passenger-status/edit",
+                element: <EditPassengerStatus />,
+            },
+            {
+                path: "settings/passenger-documents",
+                element: <PassengerDocuments />,
+            },
+            {
+                path: "settings/job-catalog",
+                element: <JobCatalogs />,
+            },
+            {
+                path: "settings/job-catalog/add-edit",
+                element: <AddEditJobCatalogs />,
+            },
+            {
+                path: "settings/qualifications",
+                element: <Qualifications />,
+            },
+            {
+                path: "settings/countries",
+                element: <Countries />,
             },
 
             // etc.

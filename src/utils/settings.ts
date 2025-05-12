@@ -1,64 +1,13 @@
-export const rolesData = [
-    { label: "Admin", value: "admin", color: "#007bff" }, // Blue
-    { label: "Driver", value: "driver", color: "#17a2b8" }, // Teal
-    { label: "Helper", value: "helper", color: "#6c757d" }, // Gray
-    { label: "Owner", value: "owner", color: "#ffc107" }, // Yellow
-    { label: "Sales Manager", value: "sales_manager", color: "#28a745" }, // Green
-    { label: "Sales Rep", value: "sales_rep", color: "#fd7e14" }, // Orange
-    { label: "Stock Keeper", value: "stock_keeper", color: "#6610f2" }, // Purple
-    { label: "Super Admin", value: "super_admin", color: "#dc3545" }, // Red
-    { label: "Warehouse Manager", value: "warehouse_manager", color: "#20c997" }, // Light Green
-];
-
-export const searchTypes = {
-    CUSTOMER: "CUSTOMER"
-}
-
-export const customersRoutes = [
-    "customers",
-    "customers/add-customer",
-    "customers/edit-customer/:id",
-    "customers/view-customer/:id",
-    "sales-records",
-    "sales-records/add-sales-record",
-    "sales-records/view-sales-record/:id",
-    "sales-records/edit-sales-record/:id",
-    "orders",
-    "/orders/add-order",
-    "/orders/edit-order/:id",
-    "/orders/view-order/:id",
-    "cheques",
-    "cheques/add-cheque",
-    "cheques/edit-cheque/:id",
-    "cheques/view-cheque/:id",
-];
-
-export const suppliersRoutes = [
-    "suppliers",
-    "suppliers/edit-supplier/:id",
-    "suppliers/add-supplier",
-    "suppliers/view-supplier/:id",
-    "products",
-    "products/edit-product/:id",
-    "products/view-product/:id",
-    "products/add-product",
-    "invoices",
-    "invoices/add-invoice",
-    "invoices/edit-invoice/:id",
-    "invoices/view-invoice/:id",
-    "bulk-invoice-payments",
-    "bulk-invoice-payments/add-bulk-invoice-payment",
-    "bulk-invoice-payments/view-bulk-invoice-payment/:id",
-];
-
-export const paymentsRoutes = [
-    "cheque-payments",
-    "cheque-payments/add-cheque-payment",
-    "cheque-payments/edit-cheque-payment/:id",
-    "cheque-payments/view-cheque-payment/:id",
-];
-
-export const assetsRoutes = [
-    "warehouses/view-warehouse/:id",
-    "warehouses",
-];
+export const STATUS_COLORS: Record<string, string> = {
+    APPLICATION_CREATE: "#3498db",
+    AWAIT_FOR_DOCUMENTS: "#9b59b6",
+    NEW_PASSENGER: "#1abc9c",
+    IN_TRAINING: "#f1c40f",
+    DOCUMENT_VERIFY: "#e67e22",
+    AWAIT_APPLICATION_ACCEPTANCE: "#16a085",
+    GCC_MEDICAL: "#2ecc71",
+    BUREAU_CLEARANCE: "#8e44ad",
+    EMBASSY_CLEARANCE: "#2980b9",
+    DOCUMENT_HANDOVER: "#27ae60",
+    ABROADING_DONE: "#2c3e50"
+};

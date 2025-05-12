@@ -73,43 +73,43 @@ const ViewUser = () => {
                                 <Table.Td w="30%" fw="bold">
                                     Name:
                                 </Table.Td>
-                                <Table.Td>{selectedUser.username}</Table.Td>
+                                <Table.Td>{selectedUser?.username}</Table.Td>
                             </Table.Tr>
 
                             {/* Phone */}
                             <Table.Tr>
                                 <Table.Td fw="bold">Phone:</Table.Td>
-                                <Table.Td>{selectedUser.phone}</Table.Td>
+                                <Table.Td>{selectedUser?.phone}</Table.Td>
                             </Table.Tr>
 
                             {/* Alternative Phone */}
                             <Table.Tr>
                                 <Table.Td fw="bold">Phone 2:</Table.Td>
-                                <Table.Td>{selectedUser.altPhone || "-"}</Table.Td>
+                                <Table.Td>{selectedUser?.altPhone || "-"}</Table.Td>
                             </Table.Tr>
 
                             {/* Email */}
                             <Table.Tr>
                                 <Table.Td fw="bold">Email:</Table.Td>
-                                <Table.Td>{selectedUser.email}</Table.Td>
+                                <Table.Td>{selectedUser?.email}</Table.Td>
                             </Table.Tr>
 
                             {/* Address */}
                             <Table.Tr>
                                 <Table.Td fw="bold">Address:</Table.Td>
-                                <Table.Td>{selectedUser.address}</Table.Td>
+                                <Table.Td>{selectedUser?.address}</Table.Td>
                             </Table.Tr>
 
                             {/* Date of Birth */}
                             <Table.Tr>
                                 <Table.Td fw="bold">Date of Birth:</Table.Td>
-                                <Table.Td>{datePreview(selectedUser.dateOfBirth)}</Table.Td>
+                                <Table.Td>{datePreview(selectedUser?.dateOfBirth)}</Table.Td>
                             </Table.Tr>
 
                             {/* NIC */}
                             <Table.Tr>
                                 <Table.Td fw="bold">NIC:</Table.Td>
-                                <Table.Td>{selectedUser.nic}</Table.Td>
+                                <Table.Td>{selectedUser?.nic}</Table.Td>
                             </Table.Tr>
 
                             {/* Role */}
@@ -129,9 +129,9 @@ const ViewUser = () => {
                                     <Badge
                                         size={isMobile ? "sm" : "md"}
                                         radius="sm"
-                                        color={selectedUser.status ? "green" : "red"}
+                                        color={selectedUser?.status ? "green" : "red"}
                                     >
-                                        {selectedUser.status ? "ACTIVE" : "INACTIVE"}
+                                        {selectedUser?.status ? "ACTIVE" : "INACTIVE"}
                                     </Badge>
                                 </Table.Td>
                             </Table.Tr>

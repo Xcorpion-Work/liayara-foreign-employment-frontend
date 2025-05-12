@@ -97,7 +97,8 @@ const PinInputPage = () => {
                             }
                         }}
                     >
-                        <Text mb="md">Enter your recovery code here</Text>
+                        <Text>Enter your recovery code here</Text>
+                        <Text mb="md" size="xs" c="dimmed">once you entered code, code will be changed. So if you entered code was wrong, request new code instead current one</Text>
                         <PinInput
                             length={6}
                             type="number"

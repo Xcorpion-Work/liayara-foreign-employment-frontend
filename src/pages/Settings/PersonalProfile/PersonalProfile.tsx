@@ -19,7 +19,7 @@ import { datePreview } from "../../../helpers/preview.tsx";
 import { useEffect, useState } from "react";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser, updateUser } from "../../../store/userSlice/userSlice.ts";
+import { getPersonalData, updatePersonalData } from "../../../store/userSlice/userSlice.ts";
 import toNotify from "../../../helpers/toNotify.tsx";
 import { useLoading } from "../../../helpers/loadingContext.tsx";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
@@ -55,7 +55,7 @@ const PersonalProfile = () => {
     const [passwordChangeModalOpened, { open: openPasswordModal, close: closePasswordModal }] = useDisclosure(false);
 
     const loggedInUser = useSelector((state: RootState) => state.auth.user);
-    const userId = loggedInUser._id;
+    const userId = loggedInUser?._id;
     const selectedUser = useSelector((state: RootState) => state.user.selectedUser);
 
     useEffect(() => {
@@ -84,8 +84,8 @@ const PersonalProfile = () => {
     const fetchUser = async () => {
         setLoading(true);
         try {
-            const response = await dispatch(getUser(loggedInUser._id));
-            if (response.type === "user/getUser/rejected") {
+            const response = await dispatch(getPersonalData(loggedInUser?._id));
+            if (response.type === "user/getPersonalData/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             }
         } catch (e) {
@@ -164,12 +164,12 @@ const PersonalProfile = () => {
             const username = `${form.values.firstName} ${form.values.lastName}`;
             const payload = { username, ...form.values };
 
-            const response = await dispatch(updateUser({ id: userId, ...payload }));
+            const response = await dispatch(updatePersonalData({ id: userId, ...payload }));
 
-            if (response.type === "user/updateUser/rejected") {
+            if (response.type === "user/updatePersonalData/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
-                toNotify("Success", isEditMode ? "User updated successfully" : "User saved successfully", "SUCCESS");
+                toNotify("Success", "Personal data changed successfully", "SUCCESS");
                 await fetchUser();
                 setIsEditMode(false);
             }
@@ -189,7 +189,15 @@ const PersonalProfile = () => {
         },
         validate: {
             currentPassword: isNotEmpty("Current password is required"),
-            newPassword: isNotEmpty("New password is required"),
+            newPassword:(value, values) => {
+                if (!value) {
+                    return "New password is required";
+                }
+                if (value === values.currentPassword) {
+                    return "New password is similar to current password";
+                }
+                return null;
+            },
             confirmPassword: (value, values) => {
                 if (!value) {
                     return "Confirm password is required";
@@ -214,6 +222,8 @@ const PersonalProfile = () => {
                 toNotify("Success", "Password changed successfully", "SUCCESS");
                 await fetchUser();
                 setIsEditMode(false);
+                passwordForm.reset();
+                closePasswordModal();
             }
         } catch (e) {
             console.error(e);
@@ -238,7 +248,7 @@ const PersonalProfile = () => {
                             </Text>
                         </Group>
                         <Group>
-                            <Text size="xs">Manage your company details</Text>
+                            <Text size="xs">Manage your personal details</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>
@@ -250,13 +260,20 @@ const PersonalProfile = () => {
                 <Box className="h-full w-full">
                     {!isEditMode && (
                         <Group>
-                            <Button leftSection={<IconKey size={20} />} size="xs" onClick={openPasswordModal}>
+                            <Button
+                                leftSection={<IconKey size={20} />}
+                                onClick={openPasswordModal}
+                                fullWidth={isMobile}
+                                size="sm"
+                            >
                                 Change Your Password
                             </Button>
                             <Button
                                 leftSection={<IconKeyboard size={20} />}
-                                size="xs"
                                 onClick={() => setIsEditMode(true)}
+                                fullWidth={isMobile}
+                                color="violet"
+                                size="sm"
                             >
                                 Change Your User Details
                             </Button>
