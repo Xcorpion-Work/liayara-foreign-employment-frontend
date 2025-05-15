@@ -31,6 +31,8 @@ import { pageRange } from "../../../helpers/preview.tsx";
 import { useMediaQuery } from "@mantine/hooks";
 import ConfirmModal from "../../../components/confirmModal.tsx";
 import { usePermission } from "../../../helpers/previlleges.ts";
+import { useSearchParams } from "react-router-dom";
+import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
 
 const RoleManagement = () => {
     const navigate = useNavigate();
@@ -38,10 +40,19 @@ const RoleManagement = () => {
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
     const { setLoading } = useLoading();
     const pageSize = 10;
-    const [page, setPage] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
     const pagedRoles = useSelector((state: RootState) => state.user.roles);
     const isMobile = useMediaQuery("(max-width: 768px)");
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const page = parseInt(searchParams.get("page") ?? "1");
+    const searchQuery = searchParams.get("search") ?? "";
+    const status = searchParams.get("status") ?? "";
+    const [searchValues, setSearchValues] = useState<any[]>([
+        searchQuery, // name/email/phone
+        status, // status
+    ]);
 
     const [confirmModal, setConfirmModal] = useState({
         opened: false,
@@ -52,12 +63,12 @@ const RoleManagement = () => {
 
     useEffect(() => {
         fetchRoles();
-    }, [page]);
+    }, [page, searchQuery, status]);
 
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const filters = { pageSize, page };
+            const filters = { pageSize, page, searchQuery, status };
             const response = await dispatch(getPagedRoles({ filters }));
             if (response.type === "user/getPagedRoles/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
@@ -274,6 +285,31 @@ const RoleManagement = () => {
                             <Text size="xs">Manage your company roles and permissions</Text>
                         </Group>
                         <Divider mt="sm" />
+                        <DynamicSearchBar
+                            fields={[
+                                { type: "text", placeholder: "Role Name" },
+                                {
+                                    type: "select",
+                                    placeholder: "Select a status",
+                                    options: ["ACTIVE", "INACTIVE"],
+                                },
+                            ]}
+                            values={searchValues}
+                            onChange={setSearchValues}
+                            onSearch={() => {
+                                setSearchParams({
+                                    page: "1",
+                                    search: searchValues[0] || "",
+                                    status: searchValues[1] || "",
+                                });
+                            }}
+                            onClear={() => {
+                                const cleared = ["", null];
+                                setSearchValues(cleared);
+                                setSearchParams({});
+                            }}
+                        />
+                        <Divider mt="sm" />
                     </Stack>
                 </Box>
             </Box>
@@ -288,7 +324,13 @@ const RoleManagement = () => {
                     <Pagination.Root
                         total={Math.ceil(totalRecords / pageSize)}
                         value={page}
-                        onChange={(p) => setPage(p)}
+                        onChange={(p) => {
+                            setSearchParams((prev) => {
+                                const newParams = new URLSearchParams(prev);
+                                newParams.set("page", p.toString());
+                                return newParams;
+                            });
+                        }}
                         size="sm"
                         siblings={1}
                         boundaries={0}
