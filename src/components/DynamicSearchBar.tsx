@@ -88,11 +88,22 @@ export const DynamicSearchBar: React.FC<DynamicSearchBarProps> = ({ fields, valu
                 })}
             </Group>
 
-            <Group mt="md">
-                <Button size="sm" onClick={onSearch} leftSection={<IconSearch size={16} />}>
+            <Group mt="md" w="100%" wrap="wrap" gap="sm">
+                <Button
+                    size="sm"
+                    w={{ base: "calc(50% - 0.5rem)", sm: "auto" }} // 0.5rem = gap between buttons
+                    onClick={onSearch}
+                    leftSection={<IconSearch size={16} />}
+                >
                     Search
                 </Button>
-                <Button size="sm" variant="outline" onClick={onClear} leftSection={<IconClearAll size={16} />}>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    w={{ base: "calc(50% - 0.5rem)", sm: "auto" }}
+                    onClick={onClear}
+                    leftSection={<IconClearAll size={16} />}
+                >
                     Clear
                 </Button>
             </Group>
