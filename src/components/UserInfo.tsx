@@ -1,8 +1,5 @@
-import { Avatar, Box, Group, Menu, rem, Text, useMantineColorScheme } from "@mantine/core";
-import {
-    IconChevronRight,
-    IconLogout,
-} from "@tabler/icons-react";
+import { Avatar, Box, Group, Indicator, Menu, rem, Text, useMantineColorScheme } from "@mantine/core";
+import { IconBell, IconChevronRight, IconLogout, IconLogs } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store.ts";
@@ -26,13 +23,9 @@ const UserInfo = () => {
                 <Menu.Target>
                     <Group className="cursor-pointer">
                         {/* Avatar */}
-                        <Avatar
-                            color="initials"
-                            variant="gradient"
-                            name={avatar}
-                            key={avatar}
-                            radius="xl"
-                        ></Avatar>
+                        <Indicator inline processing color="green" size={15} withBorder>
+                            <Avatar color="initials" variant="gradient" name={avatar} key={avatar} radius="md"></Avatar>
+                        </Indicator>
                         <Group visibleFrom={"lg"}>
                             <Box>
                                 <Box>
@@ -61,18 +54,34 @@ const UserInfo = () => {
                         </Text>
                     </Menu.Item>
                     <Menu.Divider />
+                    <Menu.Label>Application</Menu.Label>
+                    <Menu.Item
+                        color="green"
+                        leftSection={<IconBell style={{ width: rem(14), height: rem(14) }} />}
+                        onClick={() => {
+                            navigate("/app/notifications");
+                        }}
+                    >
+                        Notifications
+                    </Menu.Item>
+                    <Menu.Item
+                        color="blue"
+                        leftSection={<IconLogs style={{ width: rem(14), height: rem(14) }} />}
+                        onClick={() => {
+                            navigate("/app/audit-logs");
+                        }}
+                    >
+                        Audit Logs
+                    </Menu.Item>
+                    <Menu.Divider />
                     <Menu.Label>Danger zone</Menu.Label>
                     <Menu.Item
                         color="red"
-                        leftSection={
-                            <IconLogout
-                                style={{ width: rem(14), height: rem(14) }}
-                            />
-                        }
+                        leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
                         onClick={() => {
                             dispatch(logOut());
                             navigate("/login");
-                            setColorScheme("light")
+                            setColorScheme("light");
                         }}
                     >
                         Logout
