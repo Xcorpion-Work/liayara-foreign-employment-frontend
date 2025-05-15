@@ -19,8 +19,8 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { useEffect, useState } from "react";
-import { useLoading } from "../../../helpers/loadingContext.tsx";
-import toNotify from "../../../helpers/toNotify.tsx";
+import { useLoading } from "../../../hooks/loadingContext.tsx";
+import toNotify from "../../../hooks/toNotify.tsx";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
     createPassengerDocumentType,

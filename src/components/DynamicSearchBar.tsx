@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Box, Group, TextInput, Select, Checkbox, Button } from "@mantine/core";
 import { IconClearAll, IconSearch } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
@@ -6,7 +5,6 @@ import { DateInput } from "@mantine/dates";
 interface FieldConfig {
     type: "text" | "select" | "checkbox" | "date";
     placeholder?: string;
-    // initial value if needed
     value?: any;
     options?: string[] | { label: string; value: string }[];
     clearable?: boolean;
@@ -18,61 +16,28 @@ interface FieldConfig {
 
 interface DynamicSearchBarProps {
     fields: FieldConfig[];
-    onSearch: (values: any[]) => void;
+    values: any[]; // 👈 pass current values from parent
+    onChange: (values: any[]) => void; // 👈 handle field change from parent
+    onSearch: () => void;
     onClear: () => void;
 }
 
-/**
- * Instead of using the provided field.value, we always reset to a "cleared" value
- * based on the field type. This ensures that the Clear button resets text and select fields.
- */
-const getDefaultValue = (field: FieldConfig) => {
-    switch (field.type) {
-        case "checkbox":
-            return false;
-        case "select":
-        case "date":
-            return null;
-        default:
-            return "";
-    }
-};
-
-export const DynamicSearchBar: React.FC<DynamicSearchBarProps> = ({ fields, onSearch, onClear }) => {
-    // Local state is initialized using our getDefaultValue (ignoring provided value)
-    const [localValues, setLocalValues] = useState<any[]>(() =>
-        fields.map((field) => getDefaultValue(field))
-    );
-
+export const DynamicSearchBar: React.FC<DynamicSearchBarProps> = ({ fields, values, onChange, onSearch, onClear }:DynamicSearchBarProps) => {
     const handleFieldChange = (index: number, value: any) => {
-        setLocalValues((prev) => {
-            const newValues = [...prev];
-            newValues[index] = value;
-            return newValues;
-        });
-    };
-
-    const handleSearch = () => {
-        // Trigger onSearch callback with current local values.
-        onSearch(localValues);
-    };
-
-    const handleClear = () => {
-        // Reset localValues to default cleared values.
-        const clearedValues = fields.map((field) => getDefaultValue(field));
-        setLocalValues(clearedValues);
-        onClear();
+        const newValues = [...values];
+        newValues[index] = value;
+        onChange(newValues);
     };
 
     return (
-        <Box px="lg">
+        <Box mt="sm">
             <Group w={{ lg: "60%", sm: "100%" }}>
                 {fields.map((field, index) => {
                     const commonProps = {
                         className: "w-full lg:w-1/4",
-                        size: "xs" as const,
+                        size: "sm" as const,
                         placeholder: field.placeholder,
-                        value: localValues[index],
+                        value: values[index],
                     };
 
                     switch (field.type) {
@@ -81,9 +46,7 @@ export const DynamicSearchBar: React.FC<DynamicSearchBarProps> = ({ fields, onSe
                                 <TextInput
                                     key={index}
                                     {...commonProps}
-                                    onChange={(event) =>
-                                        handleFieldChange(index, event.target.value)
-                                    }
+                                    onChange={(e) => handleFieldChange(index, e.target.value)}
                                     leftSection={<IconSearch size={14} />}
                                 />
                             );
@@ -92,28 +55,20 @@ export const DynamicSearchBar: React.FC<DynamicSearchBarProps> = ({ fields, onSe
                                 <Select
                                     key={index}
                                     {...commonProps}
+                                    value={values[index] ?? null}
                                     data={field.options || []}
-                                    // clearable={field.clearable}
                                     searchable={field.searchable}
-                                    onChange={(value) => handleFieldChange(index, value)}
+                                    clearable={field.clearable}
+                                    onChange={(val) => handleFieldChange(index, val)}
                                 />
                             );
                         case "checkbox":
                             return (
                                 <Checkbox
                                     key={index}
-                                    label={
-                                        <span className="font-semibold">
-                                            {field.label}
-                                        </span>
-                                    }
-                                    checked={localValues[index]}
-                                    onChange={(event) =>
-                                        handleFieldChange(
-                                            index,
-                                            event.currentTarget.checked
-                                        )
-                                    }
+                                    label={<span className="font-semibold">{field.label}</span>}
+                                    checked={values[index]}
+                                    onChange={(e) => handleFieldChange(index, e.currentTarget.checked)}
                                 />
                             );
                         case "date":
@@ -132,11 +87,12 @@ export const DynamicSearchBar: React.FC<DynamicSearchBarProps> = ({ fields, onSe
                     }
                 })}
             </Group>
+
             <Group mt="md">
-                <Button size="xs" onClick={handleSearch} leftSection={<IconSearch size="16"/>}>
+                <Button size="sm" onClick={onSearch} leftSection={<IconSearch size={16} />}>
                     Search
                 </Button>
-                <Button size="xs" variant="outline" onClick={handleClear} leftSection={<IconClearAll size="16"/>}>
+                <Button size="sm" variant="outline" onClick={onClear} leftSection={<IconClearAll size={16} />}>
                     Clear
                 </Button>
             </Group>

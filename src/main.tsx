@@ -18,7 +18,7 @@ import { AuthLoaderChecker } from "./utils/authChecker.ts";
 import { Notifications } from "@mantine/notifications";
 
 const Loading = React.lazy(() => import("./components/Loading.tsx"));
-import { LoadingProvider } from "./helpers/loadingContext.tsx";
+import { LoadingProvider } from "./hooks/loadingContext.tsx";
 import { DatesProvider } from "@mantine/dates";
 import { redirect } from "react-router-dom";
 

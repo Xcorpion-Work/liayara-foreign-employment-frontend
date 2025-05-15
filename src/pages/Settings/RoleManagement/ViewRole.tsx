@@ -3,9 +3,9 @@ import { IconArrowLeft, IconDatabaseOff } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
-import { useLoading } from "../../../helpers/loadingContext.tsx";
+import { useLoading } from "../../../hooks/loadingContext.tsx";
 import { useEffect } from "react";
-import toNotify from "../../../helpers/toNotify.tsx";
+import toNotify from "../../../hooks/toNotify.tsx";
 import { getRole } from "../../../store/userSlice/userSlice.ts";
 
 const ViewRole = () => {
