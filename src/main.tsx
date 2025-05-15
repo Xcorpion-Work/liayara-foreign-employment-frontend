@@ -51,6 +51,8 @@ const JobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs"));
 const AddEditJobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs/AddEditJobCatalog.tsx"));
 const Qualifications = React.lazy(() => import("./pages/Settings/Qualifications"));
 const Countries = React.lazy(() => import("./pages/Settings/Countries"));
+const NotificationsPage = React.lazy(() => import("./pages/NotificationPage.tsx"));
+const AuditLogsPage = React.lazy(() => import("./pages/AuditLogsPage.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -130,6 +132,14 @@ const router = createBrowserRouter([
                 path: "settings/countries",
                 element: <Countries />,
             },
+            {
+                path: "notifications",
+                element: <NotificationsPage />,
+            },
+            {
+                path: "audit-logs",
+                element: <AuditLogsPage />,
+            },
 
             // etc.
             {
@@ -154,6 +164,10 @@ const router = createBrowserRouter([
     {
         path: "pin-input",
         element: <PinInputPage />,
+    },
+    {
+        path: "*",
+        element: <Navigate to="/app/dashboard" replace />,
     },
 ]);
 

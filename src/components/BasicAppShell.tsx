@@ -16,10 +16,12 @@ import { useDisclosure } from "@mantine/hooks";
 import logo from "../assets/logo1.png";
 import UserInfo from "./UserInfo.tsx";
 import {
-    IconLayoutDashboard,
+    IconBriefcase,
+    IconCurrentLocation,
+    IconLayoutDashboard, IconList,
     IconMoon,
     IconSettings,
-    IconSun,
+    IconSun, IconUserPlus, IconUsersGroup, IconWorldSearch,
 } from "@tabler/icons-react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useSelector } from "react-redux";
@@ -112,6 +114,19 @@ const BasicAppShell = () => {
                         variant="filled"
                         active={activePath === "dashboard"}
                     />
+                    <NavLink label="Passengers" leftSection={<IconUsersGroup size="1rem" stroke={1.5}/>} variant="filled" active={activePath === "passengers"}>
+                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5}/>} variant="light" />
+                    </NavLink>
+                    <NavLink label="Sub Agents" leftSection={<IconUserPlus size="1rem" stroke={1.5}/>} variant="filled" active={activePath === "passengers"}>
+                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5}/>} variant="light" />
+                    </NavLink>
+                    <NavLink label="Foreign Agents" leftSection={<IconWorldSearch size="1rem" stroke={1.5}/>} variant="filled" active={activePath === "passengers"}>
+                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5}/>} variant="light" />
+                        <NavLink label="Job Orders" leftSection={<IconBriefcase size="1rem" stroke={1.5}/>} variant="light" />
+                    </NavLink>
+                    <NavLink label="Local Agents" leftSection={<IconCurrentLocation size="1rem" stroke={1.5}/>} variant="filled" active={activePath === "passengers"}>
+                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5}/>} variant="light" />
+                    </NavLink>
                 </ScrollArea>
                 <Group className="mt-auto">
                     <NavLink
