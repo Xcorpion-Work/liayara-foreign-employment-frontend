@@ -24,24 +24,39 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { useEffect, useState } from "react";
-import { useLoading } from "../../../helpers/loadingContext.tsx";
-import { getPagedUsers, updateUser } from "../../../store/userSlice/userSlice.ts";
-import toNotify from "../../../helpers/toNotify.tsx";
+import { useLoading } from "../../../hooks/loadingContext.tsx";
+import { getPagedUsers, getRoles, updateUser } from "../../../store/userSlice/userSlice.ts";
+import toNotify from "../../../hooks/toNotify.tsx";
 import { pageRange } from "../../../helpers/preview.tsx";
 import { useMediaQuery } from "@mantine/hooks";
 import ConfirmModal from "../../../components/confirmModal.tsx";
 import { usePermission } from "../../../helpers/previlleges.ts";
+import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
+import { useSearchParams } from "react-router-dom";
 
 const UserManagement = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { setLoading } = useLoading();
     const pageSize = 10;
-    const [page, setPage] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const page = parseInt(searchParams.get("page") ?? "1");
+    const searchQuery = searchParams.get("search") ?? "";
+    const status = searchParams.get("status") ?? "";
+    const role = searchParams.get("role") ?? "";
+    const [searchValues, setSearchValues] = useState<any[]>([
+        searchQuery, // name/email/phone
+        role,        // roleId
+        status       // status
+    ]);
+
     const pagedUsers = useSelector((state: RootState) => state.user.users);
+    const roles = useSelector((state: RootState) => state.user.roles);
+
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [confirmModal, setConfirmModal] = useState({
         opened: false,
@@ -52,13 +67,42 @@ const UserManagement = () => {
     const [confirmType, setConfirmType] = useState<"activate" | "deactivate">("activate");
 
     useEffect(() => {
+        fetchRoles();
+    }, [dispatch]);
+
+    const fetchRoles = async () => {
+        setLoading(true);
+        try {
+            const filters = {
+                status: true,
+            };
+            const response = await dispatch(getRoles({ filters }));
+            if (response.type === "user/getRoles/rejected") {
+                console.error(response.payload.error);
+                toNotify("Something went wrong", "Please contact system admin", "WARNING");
+            }
+        } catch (e) {
+            console.error(e);
+            toNotify("Something went wrong", "Please contact system admin", "WARNING");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchUsers();
-    }, [page]);
+    }, [page, searchQuery, status, role]);
 
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const filters = { pageSize, page };
+            const filters = {
+                pageSize,
+                page,
+                searchQuery,
+                status,
+                role
+            };
             const response = await dispatch(getPagedUsers({ filters }));
             if (response.type === "user/getPagedUsers/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
@@ -146,7 +190,9 @@ const UserManagement = () => {
                                                                 <Menu.Item
                                                                     leftSection={<IconMobiledataOff size={18} />}
                                                                     color={user?.status ? "red" : "green"}
-                                                                    onClick={() => openConfirmModal(user._id, !user.status)}
+                                                                    onClick={() =>
+                                                                        openConfirmModal(user._id, !user.status)
+                                                                    }
                                                                 >
                                                                     {user?.status ? "Deactivate" : "Activate"}
                                                                 </Menu.Item>
@@ -284,6 +330,37 @@ const UserManagement = () => {
                             <Text size="xs">Manage your company users</Text>
                         </Group>
                         <Divider mt="sm" />
+                        <DynamicSearchBar
+                            fields={[
+                                { type: "text", placeholder: "User Name or phone or Email" },
+                                {
+                                    type: "select",
+                                    placeholder: "Select a User Role",
+                                    options: roles.map((r: any) => ({ label: r.name, value: r._id })),
+                                },
+                                {
+                                    type: "select",
+                                    placeholder: "Select a status",
+                                    options: ["ACTIVE", "INACTIVE"],
+                                },
+                            ]}
+                            values={searchValues}
+                            onChange={setSearchValues}
+                            onSearch={() => {
+                                setSearchParams({
+                                    page: "1",
+                                    search: searchValues[0] || "",
+                                    role: searchValues[1] || "",
+                                    status: searchValues[2] || "",
+                                });
+                            }}
+                            onClear={() => {
+                                const cleared = ["", null, null];
+                                setSearchValues(cleared);
+                                setSearchParams({});
+                            }}
+                        />
+                        <Divider mt="sm" />
                     </Stack>
                 </Box>
             </Box>
@@ -298,7 +375,13 @@ const UserManagement = () => {
                     <Pagination.Root
                         total={Math.ceil(totalRecords / pageSize)}
                         value={page}
-                        onChange={(p) => setPage(p)}
+                        onChange={(p) => {
+                            setSearchParams(prev => {
+                                const newParams = new URLSearchParams(prev);
+                                newParams.set("page", p.toString());
+                                return newParams;
+                            });
+                        }}
                         size="sm"
                         siblings={1}
                         boundaries={0}

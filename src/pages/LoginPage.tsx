@@ -5,8 +5,8 @@ import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store/store.ts";
 import { login } from "../store/authSlice/authSlice.ts";
-import toNotify from "../helpers/toNotify.tsx";
-import { useLoading } from "../helpers/loadingContext.tsx";
+import toNotify from "../hooks/toNotify.tsx";
+import { useLoading } from "../hooks/loadingContext.tsx";
 import xcorpion from "../assets/xcorpion.png";
 
 const LoginPage = () => {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { store } from "../store/store";
 import { logOut, tokenRefresh } from "../store/authSlice/authSlice";
-import toNotify from "../helpers/toNotify.tsx";
+import toNotify from "../hooks/toNotify.tsx";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 

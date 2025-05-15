@@ -4,8 +4,8 @@ import { useLocation, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store/store.ts";
 import { loginByForgotPassword } from "../store/authSlice/authSlice.ts";
-import toNotify from "../helpers/toNotify.tsx";
-import { useLoading } from "../helpers/loadingContext.tsx";
+import toNotify from "../hooks/toNotify.tsx";
+import { useLoading } from "../hooks/loadingContext.tsx";
 import xcorpion from "../assets/xcorpion.png";
 import { useState } from "react";
 

@@ -20,12 +20,12 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { usePermission } from "../../../../helpers/previlleges";
 import { AppDispatch, RootState } from "../../../../store/store.ts";
-import { useLoading } from "../../../../helpers/loadingContext.tsx";
+import { useLoading } from "../../../../hooks/loadingContext.tsx";
 import {
     createLanguageQualification,
     getAllLanguageQualification, updateLanguageQualification,
 } from "../../../../store/settingSlice/settingSlice.ts";
-import toNotify from "../../../../helpers/toNotify.tsx";
+import toNotify from "../../../../hooks/toNotify.tsx";
 import countriesJson from "../../../../assets/countries.json";
 import ConfirmModal from "../../../../components/confirmModal.tsx";
 

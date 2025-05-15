@@ -20,7 +20,11 @@ export const pageRange = (
     pageSize: number,
     total: number
 ) => {
+    if (total === 0) {
+        return "0 - 0 / 0";
+    }
+
     const start: number = (pageIndex - 1) * pageSize + 1;
     const end: number = Math.min(pageIndex * pageSize, total);
-    return `${start || 0} - ${end || 0} / ${total || 0}`;
+    return `${start} - ${end} / ${total}`;
 };
