@@ -17,7 +17,6 @@ import { useEffect } from "react";
 import toNotify from "../../../hooks/toNotify.tsx";
 import {  getRoles } from "../../../store/userSlice/userSlice.ts";
 import { isNotEmpty, useForm } from "@mantine/form";
-import { confirmUserLogin } from "../../../store/authSlice/authSlice.ts";
 import { getPassengerStatus, updatePassengerStatus } from "../../../store/settingSlice/settingSlice.ts";
 
 const EditPassengerStatus = () => {
@@ -112,7 +111,6 @@ const EditPassengerStatus = () => {
             } else {
                 toNotify("Success", "Passenger status updated successfully" , "SUCCESS");
                 navigate("/app/settings/passenger-status");
-                await dispatch(confirmUserLogin());
             }
         } catch (e) {
             console.error(e);

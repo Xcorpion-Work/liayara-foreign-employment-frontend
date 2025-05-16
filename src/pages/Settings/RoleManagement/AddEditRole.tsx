@@ -84,7 +84,7 @@ const AddEditRole = () => {
         const isRemoving = form.values.permissions.includes(id);
         const currentPermissions = [...form.values.permissions];
 
-        const permissionObj = permissions.find((p:any) => p._id === id);
+        const permissionObj = permissions.find((p: any) => p._id === id);
         const code = permissionObj?.code || "";
 
         if (isEditMode && selectedRole?.permissions.includes(id)) {
@@ -98,7 +98,7 @@ const AddEditRole = () => {
         if (isRemoving) {
             if (action === "VIEW") {
                 const hasCreateOrEdit = permissions.some(
-                    (p:any) =>
+                    (p: any) =>
                         (p.code === `CREATE.${module}` || p.code === `EDIT.${module}`) &&
                         currentPermissions.includes(p._id)
                 );
@@ -114,7 +114,7 @@ const AddEditRole = () => {
         } else {
             const newPermissions = [...currentPermissions, id];
             if (action === "CREATE" || action === "EDIT") {
-                const viewPermission = permissions.find((p:any) => p.code === `VIEW.${module}`);
+                const viewPermission = permissions.find((p: any) => p.code === `VIEW.${module}`);
                 if (viewPermission && !newPermissions.includes(viewPermission._id)) {
                     newPermissions.push(viewPermission._id);
                 }
@@ -144,7 +144,11 @@ const AddEditRole = () => {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
                 toNotify("Success", isEditMode ? "Role updated successfully" : "Role saved successfully", "SUCCESS");
-                navigate("/app/settings/role-management");
+                if (isEditMode) {
+                    navigate(-1);
+                } else {
+                    navigate("/app/settings/role-management");
+                }
                 await dispatch(confirmUserLogin());
             }
         } catch (e) {
