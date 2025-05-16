@@ -32,7 +32,7 @@ import { getPagedRoles } from "../store/userSlice/userSlice.ts";
 import toNotify from "../hooks/toNotify.tsx";
 import { pageRange } from "../helpers/preview.tsx";
 
-const ActivityLog = () => {
+const ActivityLogPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
@@ -273,4 +273,4 @@ const ActivityLog = () => {
     );
 };
 
-export default ActivityLog;
+export default ActivityLogPage;

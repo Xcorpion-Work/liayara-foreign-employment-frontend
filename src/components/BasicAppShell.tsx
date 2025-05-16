@@ -47,7 +47,7 @@ const BasicAppShell = () => {
 
     const greetingName = userDetails?.username?.split(" ")[0];
     const activePath = location?.pathname?.split("/")[2];
-    const subActivePath = location?.pathname?.split("/")[3];
+    const subActivePath = `${location?.pathname?.split("/")[2]}/${location?.pathname?.split("/")[3]}`;
 
     const handleNavLinkClick = (path: any) => {
         navigate(path);
@@ -119,7 +119,7 @@ const BasicAppShell = () => {
                                     leftSection={<IconList size="1rem" stroke={1.5} />}
                                     variant="light"
                                     onClick={() => handleNavLinkClick("sub-agents/registry")}
-                                    active={subActivePath === "registry"}
+                                    active={subActivePath === "sub-agents/registry"}
                                 />
                             )}
                         </NavLink>
@@ -128,9 +128,15 @@ const BasicAppShell = () => {
                         label="Foreign Agents"
                         leftSection={<IconWorldSearch size="1rem" stroke={1.5} />}
                         variant="filled"
-                        active={activePath === "passengers"}
+                        active={activePath === "foreign-agents"}
                     >
-                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5} />} variant="light" />
+                        <NavLink
+                            label="Registry"
+                            leftSection={<IconList size="1rem" stroke={1.5} />}
+                            variant="light"
+                            onClick={() => handleNavLinkClick("foreign-agents/registry")}
+                            active={subActivePath === "foreign-agents/registry"}
+                        />
                         <NavLink
                             label="Job Orders"
                             leftSection={<IconBriefcase size="1rem" stroke={1.5} />}

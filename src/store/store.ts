@@ -4,6 +4,7 @@ import dashboardReducer from "./dashboardSlice/dashboardSlice";
 import userReducer from "./userSlice/userSlice";
 import settingReducer from "./settingSlice/settingSlice";
 import subAgentReducer from "./subAgentSlice/subAgentSlice";
+import foreignAgentReducer from "./foreignAgentSlice/foreignAgentSlice";
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
         user: userReducer,
         setting: settingReducer,
         subAgent: subAgentReducer,
+        foreignAgent: foreignAgentReducer,
     },
 });
 
