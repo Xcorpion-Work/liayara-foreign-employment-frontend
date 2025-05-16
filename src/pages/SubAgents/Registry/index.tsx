@@ -91,7 +91,7 @@ const SubAgentsRegistry = () => {
                     <Box key={subAgent._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
-                                <Text fw="bold">{subAgent.name}</Text>
+                                <Text fw="bold">{subAgent?.subAgentId || "-"}{" "}:{" "}{subAgent?.name}</Text>
                                 {hasAnyPrivilege(["VIEW.SUB.AGENT", "EDIT.SUB.AGENT"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
@@ -153,9 +153,10 @@ const SubAgentsRegistry = () => {
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
+                        <Table.Th w="10%">Id</Table.Th>
                         <Table.Th w="20%">Name</Table.Th>
-                        <Table.Th w="20%">Phone</Table.Th>
-                        <Table.Th w="25%">Email</Table.Th>
+                        <Table.Th w="15%">Phone</Table.Th>
+                        <Table.Th w="20%">Email</Table.Th>
                         <Table.Th w="20%">Passengers</Table.Th>
                         <Table.Th w="10%">Status</Table.Th>
                         <Table.Th w="5%">Actions</Table.Th>
@@ -164,6 +165,7 @@ const SubAgentsRegistry = () => {
                 <Table.Tbody>
                     {pagedSubAgents.map((subAgent: any, index: number) => (
                         <Table.Tr key={subAgent._id || index}>
+                            <Table.Td>{subAgent.subAgentId || "-"}</Table.Td>
                             <Table.Td>{subAgent.name}</Table.Td>
                             <Table.Td>{subAgent.phone}</Table.Td>
                             <Table.Td>{subAgent?.email || "N/A"}</Table.Td>
@@ -288,7 +290,7 @@ const SubAgentsRegistry = () => {
                         <Divider mt="sm" />
                         <DynamicSearchBar
                             fields={[
-                                { type: "text", placeholder: "Sub Agent Name, Phone, Email" },
+                                { type: "text", placeholder: "Sub Agent Id, Name, Phone, Email" },
                                 {
                                     type: "select",
                                     placeholder: "Select a status",

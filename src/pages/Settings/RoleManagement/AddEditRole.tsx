@@ -169,7 +169,7 @@ const AddEditRole = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    {isEditMode ? "Edit Role" : "Add Role"}
+                                    {isEditMode ? `Edit Role - ${selectedRole?.name}` : "Add Role"}
                                 </Text>
                             </Group>
                         </Group>

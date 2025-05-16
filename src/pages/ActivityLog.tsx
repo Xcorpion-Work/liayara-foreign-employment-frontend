@@ -32,7 +32,6 @@ import { getPagedRoles } from "../store/userSlice/userSlice.ts";
 import toNotify from "../hooks/toNotify.tsx";
 import { pageRange } from "../helpers/preview.tsx";
 
-
 const ActivityLog = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
@@ -224,14 +223,12 @@ const ActivityLog = () => {
                 <Box className="h-full w-full">
                     <Stack gap={1}>
                         <Group justify="space-between" align="center" w="100%">
-                            <Group className="cursor-pointer" onClick={() => navigate(-1)}>
-                                <IconArrowLeft />
+                            <Group>
+                                <IconArrowLeft className="cursor-pointer" onClick={() => navigate(-1)} />
                                 <Text size="xl" fw="bold">
                                     Activity Logs
                                 </Text>
                             </Group>
-
-
                         </Group>
                         <Group>
                             <Text size="xs">See your activities</Text>

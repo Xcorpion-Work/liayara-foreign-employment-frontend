@@ -67,6 +67,12 @@ const ViewSubAgent = () => {
                         <Table.Tbody>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
+                                    Id:
+                                </Table.Td>
+                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedSubAgent?.subAgentId || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
                                     Name:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedSubAgent?.name}</Table.Td>
