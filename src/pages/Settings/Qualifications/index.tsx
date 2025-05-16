@@ -14,8 +14,8 @@ const Qualifications = () => {
                 <Box className="h-full w-full">
                     <Stack gap={1}>
                         <Group justify="space-between" align="center" w="100%">
-                            <Group className="cursor-pointer" onClick={() => navigate("/app/settings")}>
-                                <IconArrowLeft />
+                            <Group >
+                                <IconArrowLeft className="cursor-pointer" onClick={() => navigate("/app/settings")}/>
                                 <Text size="xl" fw="bold">
                                     Qualifications
                                 </Text>

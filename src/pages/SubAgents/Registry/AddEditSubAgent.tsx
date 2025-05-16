@@ -166,7 +166,7 @@ const AddEditSubAgent = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    {isEditMode ? "Edit Sub Agent" : "Add Sub Agent"}
+                                    {isEditMode ? `Edit Sub Agent - ${selectedSubAgent?.subAgentId || "-"}` : "Add Sub Agent"}
                                 </Text>
                             </Group>
                         </Group>

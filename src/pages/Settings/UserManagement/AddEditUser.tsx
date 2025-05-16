@@ -206,7 +206,7 @@ const AddEditUser = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    {isEditMode ? "Edit User" : "Add User"}
+                                    {isEditMode ? `Edit User - ${selectedUser?.username}` : "Add User"}
                                 </Text>
                             </Group>
                         </Group>

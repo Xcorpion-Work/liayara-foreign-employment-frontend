@@ -47,10 +47,11 @@ const BasicAppShell = () => {
 
     const greetingName = userDetails?.username?.split(" ")[0];
     const activePath = location?.pathname?.split("/")[2];
+    const subActivePath = location?.pathname?.split("/")[3];
 
     const handleNavLinkClick = (path: any) => {
         navigate(path);
-        closeMobile(); // Close the mobile navbar when a NavLink is clicked
+        closeMobile();
     };
 
     const currentDate = new Date();
@@ -110,7 +111,7 @@ const BasicAppShell = () => {
                             label="Sub Agents"
                             leftSection={<IconUserPlus size="1rem" stroke={1.5} />}
                             variant="filled"
-                            active={activePath === "passengers"}
+                            active={activePath === "sub-agents"}
                         >
                             {hasAnyPrivilege(["VIEW.SUB.AGENT", "CREATE.SUB.AGENT", "EDIT.SUB.AGENT"]) && (
                                 <NavLink
@@ -118,6 +119,7 @@ const BasicAppShell = () => {
                                     leftSection={<IconList size="1rem" stroke={1.5} />}
                                     variant="light"
                                     onClick={() => handleNavLinkClick("sub-agents/registry")}
+                                    active={subActivePath === "registry"}
                                 />
                             )}
                         </NavLink>
