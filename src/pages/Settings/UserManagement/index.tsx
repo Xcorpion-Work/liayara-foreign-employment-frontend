@@ -385,6 +385,7 @@ const UserManagement = () => {
                         size="sm"
                         siblings={1}
                         boundaries={0}
+                        disabled={totalRecords === 0}
                     >
                         <Group gap={5} justify="center">
                             <Pagination.First />

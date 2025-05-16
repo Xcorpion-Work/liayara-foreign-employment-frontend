@@ -52,7 +52,10 @@ const AddEditJobCatalogs = React.lazy(() => import("./pages/Settings/JobCatalogs
 const Qualifications = React.lazy(() => import("./pages/Settings/Qualifications"));
 const Countries = React.lazy(() => import("./pages/Settings/Countries"));
 const NotificationsPage = React.lazy(() => import("./pages/NotificationPage.tsx"));
-const AuditLogsPage = React.lazy(() => import("./pages/AuditLogsPage.tsx"));
+const ActivityLogsPage = React.lazy(() => import("./pages/ActivityLog.tsx"));
+const SubAgentRegistry = React.lazy(() => import("./pages/SubAgents/Registry"));
+const AddEditSubAgentRegistry = React.lazy(() => import("./pages/SubAgents/Registry/AddEditSubAgent.tsx"));
+const ViewSubAgentRegistry = React.lazy(() => import("./pages/SubAgents/Registry/ViewSubAgent.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -137,8 +140,20 @@ const router = createBrowserRouter([
                 element: <NotificationsPage />,
             },
             {
-                path: "audit-logs",
-                element: <AuditLogsPage />,
+                path: "activity-logs",
+                element: <ActivityLogsPage />,
+            },
+            {
+                path: "sub-agents/registry",
+                element: <SubAgentRegistry />,
+            },
+            {
+                path: "sub-agents/registry/add-edit",
+                element: <AddEditSubAgentRegistry />,
+            },
+            {
+                path: "sub-agents/registry/view/:id",
+                element: <ViewSubAgentRegistry />,
             },
 
             // etc.

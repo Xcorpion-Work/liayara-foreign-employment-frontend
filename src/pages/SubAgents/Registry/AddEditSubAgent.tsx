@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Group, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
+import { Box, Button, Divider, Group, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,10 +6,9 @@ import { AppDispatch, RootState } from "../../../store/store.ts";
 import { useLoading } from "../../../hooks/loadingContext.tsx";
 import { useEffect } from "react";
 import toNotify from "../../../hooks/toNotify.tsx";
-import { addUser, getRoles, getUser, updateUser } from "../../../store/userSlice/userSlice.ts";
-import { isNotEmpty, useForm } from "@mantine/form";
-import { isValidEmail, isValidPhone } from "../../../utils/inputValidators.ts";
-import { DateInput } from "@mantine/dates";
+import { useForm } from "@mantine/form";
+import { isValidPhone } from "../../../utils/inputValidators.ts";
+import { createSubAgent, getSubAgent, updateSubAgent } from "../../../store/subAgentSlice/subAgentSlice.ts";
 
 interface UserFormValues {
     firstName: string;
@@ -18,13 +17,10 @@ interface UserFormValues {
     altPhone: string;
     email: string;
     address: string;
-    role: string;
-    nic: string;
-    dateOfBirth: Date | undefined; // ✅ Important: allow Date
     remark: string;
 }
 
-const AddEditUser = () => {
+const AddEditSubAgent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { setLoading } = useLoading();
@@ -34,56 +30,35 @@ const AddEditUser = () => {
     const userId = searchParams.get("id"); // 👈 extracted role ID
     const isEditMode = Boolean(userId);
 
-    const roles = useSelector((state: RootState) => state.user.roles);
-    const selectedUser = useSelector((state: RootState) => state.user.selectedUser);
+    const selectedSubAgent = useSelector((state: RootState) => state.subAgent.selectedSubAgent);
 
     useEffect(() => {
         if (isEditMode) {
-            fetchUser();
+            fetchSubAgent();
         }
-        fetchRoles();
     }, []);
 
     useEffect(() => {
-        if (selectedUser && isEditMode) {
-            const [firstName = "", lastName = ""] = selectedUser?.username?.split(" ") || [];
+        if (selectedSubAgent && isEditMode) {
+            const [firstName = "", lastName = ""] = selectedSubAgent?.name?.split(" ") || [];
             form.setValues({
-                address: selectedUser.address || "",
-                altPhone: selectedUser.altPhone || "",
-                email: selectedUser.email || "",
-                nic: selectedUser.nic || "",
-                phone: selectedUser.phone || "",
-                remark: selectedUser.remark || "",
-                role: selectedUser.role?._id || "",
+                address: selectedSubAgent.address || "",
+                altPhone: selectedSubAgent.altPhone || "",
+                email: selectedSubAgent.email || "",
+                phone: selectedSubAgent.phone || "",
+                remark: selectedSubAgent.remark || "",
                 firstName: firstName || "",
                 lastName: lastName || "",
-                dateOfBirth: selectedUser?.dateOfBirth ? new Date(selectedUser.dateOfBirth) : undefined,
             });
             form.resetDirty();
         }
-    }, [selectedUser]);
+    }, [selectedSubAgent]);
 
-    const fetchRoles = async () => {
+    const fetchSubAgent = async () => {
         setLoading(true);
         try {
-            const filters = { status: true };
-            const response = await dispatch(getRoles({ filters }));
-            if (response.type === "user/getRoles/rejected") {
-                toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
-            }
-        } catch (e) {
-            console.error(e);
-            toNotify("Something went wrong", "Please contact system admin", "WARNING");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchUser = async () => {
-        setLoading(true);
-        try {
-            const response = await dispatch(getUser(userId));
-            if (response.type === "user/getUser/rejected") {
+            const response = await dispatch(getSubAgent(userId));
+            if (response.type === "subAgent/getSubAgent/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             }
         } catch (e) {
@@ -102,9 +77,6 @@ const AddEditUser = () => {
             altPhone: "",
             email: "",
             address: "",
-            role: "",
-            nic: "",
-            dateOfBirth: undefined,
             remark: "",
         },
         validate: {
@@ -144,48 +116,36 @@ const AddEditUser = () => {
                 }
                 return null;
             },
-            email: (value) => {
-                if (!value) {
-                    return "Email is required";
-                }
-                if (!isValidEmail(value)) {
-                    return "Email is invalid";
-                }
-            },
-            address: isNotEmpty("Address is required"),
-            role: isNotEmpty("Role is required"),
-            nic: isNotEmpty("NIC is required"),
-            dateOfBirth: isNotEmpty("Date of birth is required"),
         },
     });
 
-    const selectableRoles = roles
-        ?.filter((r: any) => r.name !== "Super Admin")
-        .map((r: any) => ({
-            label: r?.name,
-            value: r?._id,
-        }));
-
-    const handleSubmitUser = async () => {
+    const handleSubmitSubAgent = async () => {
         setLoading(true);
         try {
-            const username = `${form.values.firstName} ${form.values.lastName}`;
-            const payload = { username, ...form.values };
+            const name = `${form.values.firstName} ${form.values.lastName}`;
+            const payload = { name, ...form.values };
 
             let response;
             if (isEditMode) {
-                response = await dispatch(updateUser({ id: userId, ...payload }));
+                response = await dispatch(updateSubAgent({ id: userId, ...payload }));
             } else {
-                response = await dispatch(addUser(payload));
+                response = await dispatch(createSubAgent(payload));
             }
-            if (response.type === "user/addUser/rejected" || response.type === "user/updateUser/rejected") {
+            if (
+                response.type === "subAgent/createSubAgent/rejected" ||
+                response.type === "subAgent/updateSubAgent/rejected"
+            ) {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
-                toNotify("Success", isEditMode ? "User updated successfully" : "User saved successfully", "SUCCESS");
+                toNotify(
+                    "Success",
+                    isEditMode ? "Sub agent updated successfully" : "Sub agent saved successfully",
+                    "SUCCESS"
+                );
                 if (isEditMode) {
                     navigate(-1);
                 } else {
-                    navigate("/app/settings/user-management");
+                    navigate("/app/sub-agents/registry");
                 }
             }
         } catch (e) {
@@ -206,7 +166,7 @@ const AddEditUser = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    {isEditMode ? "Edit User" : "Add User"}
+                                    {isEditMode ? "Edit Sub Agent" : "Add Sub Agent"}
                                 </Text>
                             </Group>
                         </Group>
@@ -221,7 +181,7 @@ const AddEditUser = () => {
             {/*Form*/}
             <Box display="flex" px="lg" pb="lg" className="items-center justify-between">
                 <Box className="h-full w-full">
-                    <form onSubmit={form.onSubmit(handleSubmitUser)}>
+                    <form onSubmit={form.onSubmit(handleSubmitSubAgent)}>
                         <Text size="md" fw={500} mt="md" mb="sm">
                             Personal Information
                         </Text>
@@ -238,19 +198,6 @@ const AddEditUser = () => {
                                 placeholder="Enter last name"
                                 withAsterisk
                                 {...form.getInputProps("lastName")}
-                            />
-                            <DateInput
-                                label="Date of Birth"
-                                placeholder="Select date of birth"
-                                withAsterisk
-                                maxDate={new Date()}
-                                {...form.getInputProps("dateOfBirth")}
-                            />
-                            <TextInput
-                                label="NIC"
-                                placeholder="Enter NIC number"
-                                withAsterisk
-                                {...form.getInputProps("nic")}
                             />
                         </SimpleGrid>
 
@@ -274,14 +221,12 @@ const AddEditUser = () => {
                             <TextInput
                                 label="Email"
                                 placeholder="Enter email address"
-                                withAsterisk
                                 {...form.getInputProps("email")}
                             />
                             <Textarea
                                 label="Address"
                                 placeholder="Enter residential address"
                                 autosize
-                                withAsterisk
                                 minRows={2}
                                 {...form.getInputProps("address")}
                             />
@@ -293,13 +238,6 @@ const AddEditUser = () => {
                         </Text>
 
                         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                            <Select
-                                label="Role"
-                                placeholder="Select user role"
-                                withAsterisk
-                                data={selectableRoles}
-                                {...form.getInputProps("role")}
-                            />
                             <Textarea
                                 label="Remark"
                                 placeholder="Enter any remarks"
@@ -311,7 +249,7 @@ const AddEditUser = () => {
 
                         <Group mt="md">
                             <Button type="submit" ml="auto" disabled={!form.isDirty()}>
-                                {isEditMode ? "Update User" : "Create User"}
+                                {isEditMode ? "Update Sub Agent" : "Create Sub Agent"}
                             </Button>
                         </Group>
                     </form>
@@ -321,4 +259,4 @@ const AddEditUser = () => {
     );
 };
 
-export default AddEditUser;
+export default AddEditSubAgent;

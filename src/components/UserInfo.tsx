@@ -68,10 +68,10 @@ const UserInfo = () => {
                         color="blue"
                         leftSection={<IconLogs style={{ width: rem(14), height: rem(14) }} />}
                         onClick={() => {
-                            navigate("/app/audit-logs");
+                            navigate("/app/activity-logs");
                         }}
                     >
-                        Audit Logs
+                        Activity Logs
                     </Menu.Item>
                     <Menu.Divider />
                     <Menu.Label>Danger zone</Menu.Label>

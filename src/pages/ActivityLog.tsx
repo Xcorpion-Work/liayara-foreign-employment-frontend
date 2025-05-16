@@ -33,7 +33,7 @@ import toNotify from "../hooks/toNotify.tsx";
 import { pageRange } from "../helpers/preview.tsx";
 
 
-const AuditLogsPage = () => {
+const ActivityLog = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
@@ -227,7 +227,7 @@ const AuditLogsPage = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    Audit Logs
+                                    Activity Logs
                                 </Text>
                             </Group>
 
@@ -276,4 +276,4 @@ const AuditLogsPage = () => {
     );
 };
 
-export default AuditLogsPage;
+export default ActivityLog;
