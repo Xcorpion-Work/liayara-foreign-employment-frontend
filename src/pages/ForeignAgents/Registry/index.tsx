@@ -92,7 +92,7 @@ const ForeignAgentRegistry = () => {
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
                                 <Text fw="bold">{foreignAgent?.foreignAgentId || "-"}{" "}:{" "}{foreignAgent?.name}</Text>
-                                {hasAnyPrivilege(["VIEW.SUB.AGENT", "EDIT.SUB.AGENT"]) && (
+                                {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -100,7 +100,7 @@ const ForeignAgentRegistry = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.SUB.AGENT") && (
+                                            {hasPrivilege("VIEW.FOREIGN.AGENT") && (
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
@@ -111,7 +111,7 @@ const ForeignAgentRegistry = () => {
                                                 </Menu.Item>
                                             )}
 
-                                            {hasPrivilege("EDIT.SUB.AGENT") && (
+                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
                                                     onClick={() =>
@@ -121,7 +121,7 @@ const ForeignAgentRegistry = () => {
                                                     Edit
                                                 </Menu.Item>
                                             )}
-                                            {hasPrivilege("EDIT.SUB.AGENT") && (
+                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
                                                 <Menu.Item
                                                     leftSection={<IconMobiledataOff size={18} />}
                                                     color={foreignAgent.status ? "red" : "green"}
@@ -178,7 +178,7 @@ const ForeignAgentRegistry = () => {
                                 </Badge>
                             </Table.Td>
                             <Table.Td>
-                                {hasAnyPrivilege(["VIEW.SUB.AGENT", "EDIT.SUB.AGENT"]) && (
+                                {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -186,7 +186,7 @@ const ForeignAgentRegistry = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.SUB.AGENT") && (
+                                            {hasPrivilege("VIEW.FOREIGN.AGENT") && (
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
@@ -196,7 +196,7 @@ const ForeignAgentRegistry = () => {
                                                     View
                                                 </Menu.Item>
                                             )}
-                                            {hasPrivilege("EDIT.SUB.AGENT") && (
+                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
                                                     onClick={() =>
@@ -206,7 +206,7 @@ const ForeignAgentRegistry = () => {
                                                     Edit
                                                 </Menu.Item>
                                             )}
-                                            {hasPrivilege("EDIT.SUB.AGENT") && (
+                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
                                                 <Menu.Item
                                                     leftSection={<IconMobiledataOff size={18} />}
                                                     color={foreignAgent.status ? "red" : "green"}
@@ -278,7 +278,7 @@ const ForeignAgentRegistry = () => {
                                 </Text>
                             </Group>
 
-                            {hasPrivilege("CREATE.SUB.AGENT") && (
+                            {hasPrivilege("CREATE.FOREIGN.AGENT") && (
                                 <Button size="sm" onClick={() => navigate("/app/foreign-agents/registry/add-edit")}>
                                     + Add Foreign Agent
                                 </Button>

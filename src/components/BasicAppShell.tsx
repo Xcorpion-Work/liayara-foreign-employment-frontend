@@ -124,25 +124,31 @@ const BasicAppShell = () => {
                             )}
                         </NavLink>
                     )}
-                    <NavLink
-                        label="Foreign Agents"
-                        leftSection={<IconWorldSearch size="1rem" stroke={1.5} />}
-                        variant="filled"
-                        active={activePath === "foreign-agents"}
-                    >
+                    {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "CREATE.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
                         <NavLink
-                            label="Registry"
-                            leftSection={<IconList size="1rem" stroke={1.5} />}
-                            variant="light"
-                            onClick={() => handleNavLinkClick("foreign-agents/registry")}
-                            active={subActivePath === "foreign-agents/registry"}
-                        />
-                        <NavLink
-                            label="Job Orders"
-                            leftSection={<IconBriefcase size="1rem" stroke={1.5} />}
-                            variant="light"
-                        />
-                    </NavLink>
+                            label="Foreign Agents"
+                            leftSection={<IconWorldSearch size="1rem" stroke={1.5} />}
+                            variant="filled"
+                            active={activePath === "foreign-agents"}
+                        >
+                            {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "CREATE.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
+                                <NavLink
+                                    label="Registry"
+                                    leftSection={<IconList size="1rem" stroke={1.5} />}
+                                    variant="light"
+                                    onClick={() => handleNavLinkClick("foreign-agents/registry")}
+                                    active={subActivePath === "foreign-agents/registry"}
+                                />
+                            )}
+                            {hasAnyPrivilege(["VIEW.JOB.ORDER", "CREATE.JOB.ORDER", "EDIT.JOB.ORDER"]) && (
+                                <NavLink
+                                    label="Job Orders"
+                                    leftSection={<IconBriefcase size="1rem" stroke={1.5} />}
+                                    variant="light"
+                                />
+                            )}
+                        </NavLink>
+                    )}
                     <NavLink
                         label="Local Agents"
                         leftSection={<IconCurrentLocation size="1rem" stroke={1.5} />}
