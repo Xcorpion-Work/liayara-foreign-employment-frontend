@@ -1,4 +1,3 @@
-
 export const datePreview = (date: string) => date?.split("T")[0];
 
 export const rolePreview = (role: string) => {
@@ -10,16 +9,12 @@ export const rolePreview = (role: string) => {
 
 export const amountPreview = (amount: number): string => {
     if (isNaN(amount)) {
-        return "Rs. 0.00";
+        return "0.00";
     }
-    return `Rs. ${amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+    return `${amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
-export const pageRange = (
-    pageIndex: number,
-    pageSize: number,
-    total: number
-) => {
+export const pageRange = (pageIndex: number, pageSize: number, total: number) => {
     if (total === 0) {
         return "0 - 0 / 0";
     }

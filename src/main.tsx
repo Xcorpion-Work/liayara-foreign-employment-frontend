@@ -54,11 +54,14 @@ const Countries = React.lazy(() => import("./pages/Settings/Countries"));
 const NotificationsPage = React.lazy(() => import("./pages/NotificationPage.tsx"));
 const ActivityLogsPage = React.lazy(() => import("./pages/ActivityLogPage.tsx"));
 const SubAgentRegistry = React.lazy(() => import("./pages/SubAgents/Registry"));
+const JobOrders = React.lazy(() => import("./pages/ForeignAgents/JobOrders"));
 const ForeignAgentRegistry = React.lazy(() => import("./pages/ForeignAgents/Registry"));
 const AddEditSubAgentRegistry = React.lazy(() => import("./pages/SubAgents/Registry/AddEditSubAgent.tsx"));
 const ViewSubAgentRegistry = React.lazy(() => import("./pages/SubAgents/Registry/ViewSubAgent.tsx"));
 const AddEditForeignAgentRegistry = React.lazy(() => import("./pages/ForeignAgents/Registry/AddEditForeignAgent.tsx"));
+const AddEditJobOrder = React.lazy(() => import("./pages/ForeignAgents/JobOrders/AddEditJobOrder.tsx"));
 const ViewForeignAgentRegistry = React.lazy(() => import("./pages/ForeignAgents/Registry/ViewForeignAgent.tsx"));
+const ViewJobOrder = React.lazy(() => import("./pages/ForeignAgents/JobOrders/ViewJobOrder.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -155,8 +158,16 @@ const router = createBrowserRouter([
                 element: <ForeignAgentRegistry />,
             },
             {
+                path: "foreign-agents/job-orders",
+                element: <JobOrders />,
+            },
+            {
                 path: "sub-agents/registry/add-edit",
                 element: <AddEditSubAgentRegistry />,
+            },
+            {
+                path: "foreign-agents/job-orders/add-edit",
+                element: <AddEditJobOrder />,
             },
             {
                 path: "foreign-agents/registry/add-edit",
@@ -169,6 +180,10 @@ const router = createBrowserRouter([
             {
                 path: "foreign-agents/registry/view/:id",
                 element: <ViewForeignAgentRegistry />,
+            },
+            {
+                path: "foreign-agents/job-orders/view/:id",
+                element: <ViewJobOrder />,
             },
 
             // etc.

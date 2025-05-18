@@ -9,5 +9,20 @@ export const STATUS_COLORS: Record<string, string> = {
     BUREAU_CLEARANCE: "#8e44ad",
     EMBASSY_CLEARANCE: "#2980b9",
     DOCUMENT_HANDOVER: "#27ae60",
-    ABROADING_DONE: "#2c3e50"
+    ABROADING_DONE: "#2c3e50",
+};
+
+export const JOB_ORDER_FACILITIES = [
+    "FOOD",
+    "ACCOMMODATION",
+    "AIR TICKET ONE WAY",
+    "AIR TICKET TWO WAY",
+    "MEDICAL",
+    "CONTRACT PERIOD",
+];
+
+export const JOB_ORDER_STATUS_COLORS: Record<string, string> = {
+    PENDING: "yellow",
+    ACTIVE: "green",
+    EXPIRED: "red",
 };

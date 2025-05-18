@@ -17,24 +17,26 @@ import {
     IconDatabaseOff,
     IconDotsVertical,
     IconEye,
-    IconMobiledataOff,
     IconPencil,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../../../helpers/previlleges.ts";
-import { pageRange } from "../../../helpers/preview.tsx";
+import { datePreview, pageRange } from "../../../helpers/preview.tsx";
 import { useMediaQuery } from "@mantine/hooks";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLoading } from "../../../hooks/loadingContext.tsx";
-import ConfirmModal from "../../../components/confirmModal.tsx";
 import toNotify from "../../../hooks/toNotify.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
-import { getPagedForeignAgents, updateForeignAgent } from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
+import {
+    getAllForeignAgents,
+    getPagedJobOrders,
+} from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
+import { JOB_ORDER_STATUS_COLORS } from "../../../utils/settings.ts";
 
-const ForeignAgentRegistry = () => {
+const JobOrders = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch | any>();
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
@@ -42,35 +44,51 @@ const ForeignAgentRegistry = () => {
     const pageSize = 10;
     const [totalRecords, setTotalRecords] = useState(0);
     const isMobile = useMediaQuery("(max-width: 768px)");
-    const pagedForeignAgents = useSelector((state: RootState) => state.foreignAgent.foreignAgents);
+    const pagedJobOrders = useSelector((state: RootState) => state.foreignAgent.jobOrders);
+    const foreignAgents = useSelector((state: RootState) => state.foreignAgent.foreignAgents);
 
     const [searchParams, setSearchParams] = useSearchParams();
 
     const page = parseInt(searchParams.get("page") ?? "1");
     const searchQuery = searchParams.get("search") ?? "";
-    const status = searchParams.get("status") ?? "";
+    const foreignAgent = searchParams.get("agent") ?? "";
+    const jobOrderStatus = searchParams.get("status") ?? "";
     const [searchValues, setSearchValues] = useState<any[]>([
         searchQuery, // name/email/phone
-        status, // status
+        foreignAgent,
+        jobOrderStatus, // status
     ]);
-
-    const [confirmModal, setConfirmModal] = useState({
-        opened: false,
-        id: "",
-        status: false,
-    });
-    const [confirmType, setConfirmType] = useState<"activate" | "deactivate">("activate");
 
     useEffect(() => {
         fetchForeignAgents();
-    }, [page, searchQuery, status]);
+    }, [dispatch]);
 
     const fetchForeignAgents = async () => {
         setLoading(true);
         try {
-            const filters = { pageSize, page, searchQuery, status };
-            const response = await dispatch(getPagedForeignAgents({ filters }));
-            if (response.type === "foreignAgent/getPagedForeignAgents/rejected") {
+            const filters = { status: true };
+            const response = await dispatch(getAllForeignAgents({ filters }));
+            if (response.type === "foreignAgent/getAllForeignAgents/rejected") {
+                toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
+            }
+        } catch (e) {
+            console.error(e);
+            toNotify("Something went wrong", "Please contact system admin", "WARNING");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchJobOrders();
+    }, [page, searchQuery, foreignAgent, jobOrderStatus]);
+
+    const fetchJobOrders = async () => {
+        setLoading(true);
+        try {
+            const filters = { pageSize, page, searchQuery, foreignAgent, jobOrderStatus };
+            const response = await dispatch(getPagedJobOrders({ filters }));
+            if (response.type === "foreignAgent/getPagedJobOrders/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             }
             setTotalRecords(response?.payload?.response?.total || 0);
@@ -84,15 +102,17 @@ const ForeignAgentRegistry = () => {
 
     // 🔥 Extracted view
     let contentView;
-    if (Array.isArray(pagedForeignAgents) && pagedForeignAgents.length > 0) {
+    if (Array.isArray(pagedJobOrders) && pagedJobOrders.length > 0) {
         contentView = isMobile ? (
             <Stack gap="md">
-                {pagedForeignAgents.map((foreignAgent: any, index: number) => (
-                    <Box key={foreignAgent._id || index}>
+                {pagedJobOrders?.map((jobOrder: any, index: number) => (
+                    <Box key={jobOrder._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
-                                <Text fw="bold">{foreignAgent?.foreignAgentId || "-"}{" "}:{" "}{foreignAgent?.name}</Text>
-                                {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
+                                <Text fw="bold">
+                                    {jobOrder?.jobOrderId || "-"} : {jobOrder?.foreignAgentData?.name}
+                                </Text>
+                                {hasAnyPrivilege(["VIEW.JOB.ORDER", "EDIT.JOB.ORDER"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -100,34 +120,27 @@ const ForeignAgentRegistry = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.FOREIGN.AGENT") && (
+                                            {hasPrivilege("VIEW.JOB.ORDER") && (
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/view/${foreignAgent._id}`)
+                                                        navigate(`/app/foreign-agents/job-orders/view/${jobOrder._id}`)
                                                     }
                                                 >
                                                     View
                                                 </Menu.Item>
                                             )}
 
-                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
+                                            {(hasPrivilege("EDIT.JOB.ORDER") && jobOrder.jobOrderStatus === "PENDING") && (
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/add-edit?id=${foreignAgent._id}`)
+                                                        navigate(
+                                                            `/app/foreign-agents/job-orders/add-edit?id=${jobOrder._id}`
+                                                        )
                                                     }
                                                 >
                                                     Edit
-                                                </Menu.Item>
-                                            )}
-                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
-                                                <Menu.Item
-                                                    leftSection={<IconMobiledataOff size={18} />}
-                                                    color={foreignAgent.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(foreignAgent._id, !foreignAgent.status)}
-                                                >
-                                                    {foreignAgent.status ? "Deactivate" : "Activate"}
                                                 </Menu.Item>
                                             )}
                                         </Menu.Dropdown>
@@ -135,14 +148,17 @@ const ForeignAgentRegistry = () => {
                                 )}
                             </Group>
                             <Group mt="xs">
-                                <Text size="sm">Phone: {foreignAgent.phone}</Text>
+                                <Text size="sm">Approval No.: {jobOrder.jobOrderApprovalNumber}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Text size="sm">Email: {foreignAgent.email || "N/A"}</Text>
+                                <Text size="sm">Issued At: {datePreview(jobOrder.issuedDate)}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Badge radius="sm" color={foreignAgent.status ? "green" : "red"}>
-                                    {foreignAgent.status ? "ACTIVE" : "INACTIVE"}
+                                <Text size="sm">Expired At: {datePreview(jobOrder.expiredDate)}</Text>
+                            </Group>
+                            <Group mt="xs">
+                                <Badge radius="sm"  color={JOB_ORDER_STATUS_COLORS[jobOrder.jobOrderStatus] || "gray"}>
+                                    {jobOrder.jobOrderStatus}
                                 </Badge>
                             </Group>
                         </Card>
@@ -154,31 +170,29 @@ const ForeignAgentRegistry = () => {
                 <Table.Thead>
                     <Table.Tr>
                         <Table.Th w="10%">Id</Table.Th>
-                        <Table.Th w="20%">Name</Table.Th>
-                        <Table.Th w="15%">Phone</Table.Th>
-                        <Table.Th w="20%">Email</Table.Th>
-                        <Table.Th w="20%">Job Orders</Table.Th>
+                        <Table.Th w="20%">Foreign Agent</Table.Th>
+                        <Table.Th w="15%">Approval No.</Table.Th>
+                        <Table.Th w="20%">Issued Date</Table.Th>
+                        <Table.Th w="20%">Expired Date</Table.Th>
                         <Table.Th w="10%">Status</Table.Th>
                         <Table.Th w="5%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {pagedForeignAgents.map((foreignAgent: any, index: number) => (
-                        <Table.Tr key={foreignAgent._id || index}>
-                            <Table.Td>{foreignAgent.foreignAgentId || "-"}</Table.Td>
-                            <Table.Td>{foreignAgent.name}</Table.Td>
-                            <Table.Td>{foreignAgent.phone}</Table.Td>
-                            <Table.Td>{foreignAgent?.email || "N/A"}</Table.Td>
+                    {pagedJobOrders?.map((jobOrder: any, index: number) => (
+                        <Table.Tr key={jobOrder._id || index}>
+                            <Table.Td>{jobOrder?.jobOrderId || "-"}</Table.Td>
+                            <Table.Td>{jobOrder?.foreignAgentData?.name}</Table.Td>
+                            <Table.Td>{jobOrder?.jobOrderApprovalNumber}</Table.Td>
+                            <Table.Td>{datePreview(jobOrder?.issuedDate)}</Table.Td>
+                            <Table.Td>{datePreview(jobOrder?.expiredDate)}</Table.Td>
                             <Table.Td>
-                                <Badge variant="outline">{foreignAgent?.jobOrdersData?.length || 0} Job Orders</Badge>
-                            </Table.Td>
-                            <Table.Td>
-                                <Badge color={foreignAgent.status ? "green" : "red"} radius="sm">
-                                    {foreignAgent.status ? "ACTIVE" : "INACTIVE"}
+                                <Badge color={JOB_ORDER_STATUS_COLORS[jobOrder.jobOrderStatus] || "gray"} radius="sm">
+                                    {jobOrder.jobOrderStatus}
                                 </Badge>
                             </Table.Td>
                             <Table.Td>
-                                {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
+                                {hasAnyPrivilege(["VIEW.JOB.ORDER", "EDIT.JOB.ORDER"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -186,33 +200,26 @@ const ForeignAgentRegistry = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.FOREIGN.AGENT") && (
+                                            {hasPrivilege("VIEW.JOB.ORDER") && (
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/view/${foreignAgent._id}`)
+                                                        navigate(`/app/foreign-agents/job-orders/view/${jobOrder._id}`)
                                                     }
                                                 >
                                                     View
                                                 </Menu.Item>
                                             )}
-                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
+                                            {(hasPrivilege("EDIT.JOB.ORDER") && jobOrder.jobOrderStatus === "PENDING") && (
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/add-edit?id=${foreignAgent._id}`)
+                                                        navigate(
+                                                            `/app/foreign-agents/job-orders/add-edit?id=${jobOrder._id}`
+                                                        )
                                                     }
                                                 >
                                                     Edit
-                                                </Menu.Item>
-                                            )}
-                                            {hasPrivilege("EDIT.FOREIGN.AGENT") && (
-                                                <Menu.Item
-                                                    leftSection={<IconMobiledataOff size={18} />}
-                                                    color={foreignAgent.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(foreignAgent._id, !foreignAgent.status)}
-                                                >
-                                                    {foreignAgent.status ? "Deactivate" : "Activate"}
                                                 </Menu.Item>
                                             )}
                                         </Menu.Dropdown>
@@ -237,33 +244,6 @@ const ForeignAgentRegistry = () => {
         );
     }
 
-    const openConfirmModal = (id: string, newStatus: boolean) => {
-        setConfirmModal({ opened: true, id, status: newStatus });
-        setConfirmType(newStatus ? "activate" : "deactivate");
-    };
-
-    const handleConfirmStatus = async () => {
-        setConfirmModal((prev) => ({ ...prev, opened: false }));
-        if (!confirmModal.id) return;
-
-        setLoading(true);
-        try {
-            const payload = { id: confirmModal.id, status: confirmModal.status };
-            const response = await dispatch(updateForeignAgent(payload));
-            if (response.type === "foreignAgent/updateForeignAgent/rejected") {
-                toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
-            } else {
-                toNotify("Success", "Foreign agent updated successfully", "SUCCESS");
-                fetchForeignAgents();
-            }
-        } catch (e) {
-            console.error(e);
-            toNotify("Something went wrong", "Please contact system admin", "WARNING");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
         <>
             {/* Header */}
@@ -274,27 +254,32 @@ const ForeignAgentRegistry = () => {
                             <Group>
                                 <IconArrowLeft className="cursor-pointer" onClick={() => navigate(-1)} />
                                 <Text size="xl" fw="bold">
-                                    Foreign Agents Registry
+                                    Job Orders
                                 </Text>
                             </Group>
 
-                            {hasPrivilege("CREATE.FOREIGN.AGENT") && (
-                                <Button size="sm" onClick={() => navigate("/app/foreign-agents/registry/add-edit")}>
-                                    + Add Foreign Agent
+                            {(hasPrivilege("CREATE.JOB.ORDER") && !isMobile) && (
+                                <Button size="sm" onClick={() => navigate("/app/foreign-agents/job-orders/add-edit")}>
+                                    + Add Job Order
                                 </Button>
                             )}
                         </Group>
                         <Group>
-                            <Text size="xs">Manage your foreign agents</Text>
+                            <Text size="xs">Manage your company job orders</Text>
                         </Group>
                         <Divider mt="sm" />
                         <DynamicSearchBar
                             fields={[
-                                { type: "text", placeholder: "Foreign Agent Id, Name, Phone, Email" },
+                                { type: "text", placeholder: "Job Order Id, Approval No" },
+                                {
+                                    type: "select",
+                                    placeholder: "Select a foreign agent",
+                                    options: foreignAgents?.map((f) => ({ label: f.name, value: f._id })),
+                                },
                                 {
                                     type: "select",
                                     placeholder: "Select a status",
-                                    options: ["ACTIVE", "INACTIVE"],
+                                    options: ["PENDING", "ACTIVE", "EXPIRED"],
                                 },
                             ]}
                             values={searchValues}
@@ -303,11 +288,12 @@ const ForeignAgentRegistry = () => {
                                 setSearchParams({
                                     page: "1",
                                     search: searchValues[0] || "",
-                                    status: searchValues[1] || "",
+                                    agent: searchValues[1] || "",
+                                    status: searchValues[2] || "",
                                 });
                             }}
                             onClear={() => {
-                                const cleared = ["", null];
+                                const cleared = ["", null,null];
                                 setSearchValues(cleared);
                                 setSearchParams({});
                             }}
@@ -349,24 +335,8 @@ const ForeignAgentRegistry = () => {
                     </Pagination.Root>
                 </Group>
             </Box>
-
-            {/* Confirm Modal */}
-            <ConfirmModal
-                opened={confirmModal.opened}
-                onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
-                onConfirm={handleConfirmStatus}
-                title={confirmType === "activate" ? "Activate Foreign Agent" : "Deactivate Foreign Agent"}
-                message={
-                    confirmType === "activate"
-                        ? "Are you sure you want to activate this foreign agent?"
-                        : "Are you sure you want to deactivate this foreign agent?"
-                }
-                confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
-                cancelLabel="Cancel"
-                confirmColor={confirmType === "activate" ? "green" : "red"}
-            />
         </>
     );
 };
 
-export default ForeignAgentRegistry;
+export default JobOrders;
