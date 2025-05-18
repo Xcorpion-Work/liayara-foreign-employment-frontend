@@ -124,7 +124,14 @@ const BasicAppShell = () => {
                             )}
                         </NavLink>
                     )}
-                    {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "CREATE.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
+                    {hasAnyPrivilege([
+                        "VIEW.FOREIGN.AGENT",
+                        "CREATE.FOREIGN.AGENT",
+                        "EDIT.FOREIGN.AGENT",
+                        "VIEW.JOB.ORDER",
+                        "CREATE.JOB.ORDER",
+                        "EDIT.JOB.ORDER",
+                    ]) && (
                         <NavLink
                             label="Foreign Agents"
                             leftSection={<IconWorldSearch size="1rem" stroke={1.5} />}
@@ -145,6 +152,8 @@ const BasicAppShell = () => {
                                     label="Job Orders"
                                     leftSection={<IconBriefcase size="1rem" stroke={1.5} />}
                                     variant="light"
+                                    onClick={() => handleNavLinkClick("foreign-agents/job-orders")}
+                                    active={subActivePath === "foreign-agents/job-orders"}
                                 />
                             )}
                         </NavLink>

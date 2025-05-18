@@ -4,6 +4,8 @@ import axiosInstance from "../../interceptors/axiosInterceptor.ts";
 interface SettingState {
     foreignAgents: any[];
     selectedForeignAgent: any;
+    jobOrders: any[];
+    selectedJobOrder: any;
     status: string;
     error: string;
 }
@@ -11,6 +13,8 @@ interface SettingState {
 const initialState: SettingState = {
     foreignAgents: [],
     selectedForeignAgent: {},
+    jobOrders: [],
+    selectedJobOrder: {},
     status: "idle",
     error: "",
 };
@@ -75,6 +79,66 @@ export const getPagedForeignAgents = createAsyncThunk(
     }
 );
 
+export const getAllJobOrders = createAsyncThunk(
+    "foreignAgent/getAllJobOrders",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/foreign-agents/job-orders`, payload);
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const getJobOrder = createAsyncThunk(
+    "foreignAgent/getJobOrder",
+    async (id: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(`/foreign-agents/job-order/${id}`);
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const createJobOrder = createAsyncThunk(
+    "foreignAgent/createJobOrder",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/foreign-agents/job-order`, payload);
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const updateJobOrder = createAsyncThunk(
+    "foreignAgent/updateJobOrder",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.put(`/foreign-agents/job-order/${payload.id}`, payload);
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const getPagedJobOrders = createAsyncThunk(
+    "foreignAgent/getPagedJobOrders",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/foreign-agents/paged-job-orders`, payload);
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 const foreignAgentSlice = createSlice({
     name: "foreignAgent",
     initialState,
@@ -97,6 +161,25 @@ const foreignAgentSlice = createSlice({
         });
         builder.addCase(getPagedForeignAgents.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
             state.foreignAgents = action.payload.response.result;
+        });
+        builder.addCase(getAllJobOrders.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.jobOrders = action.payload.response;
+        });
+
+        builder.addCase(getJobOrder.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.selectedJobOrder = action.payload.response;
+        });
+        builder.addCase(updateJobOrder.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.jobOrders = state.jobOrders.map((jo: any) =>
+                jo._id === action.payload.response._id ? action.payload.response : jo
+            );
+            state.selectedJobOrder = null;
+        });
+        builder.addCase(createJobOrder.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload;
+        });
+        builder.addCase(getPagedJobOrders.fulfilled, (state: Draft<SettingState>, action: PayloadAction<any>) => {
+            state.jobOrders = action.payload.response.result;
         });
     },
 });

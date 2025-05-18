@@ -6,28 +6,28 @@ import { AppDispatch, RootState } from "../../../store/store.ts";
 import { useLoading } from "../../../hooks/loadingContext.tsx";
 import { useEffect } from "react";
 import toNotify from "../../../hooks/toNotify.tsx";
-import { getForeignAgent } from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
-import { datePreview } from "../../../helpers/preview.tsx";
+import { getJobOrder } from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
+import { amountPreview, datePreview } from "../../../helpers/preview.tsx";
 import { JOB_ORDER_STATUS_COLORS } from "../../../utils/settings.ts";
 
-const ViewForeignAgent = () => {
+const ViewJobOrder = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { setLoading } = useLoading();
 
     const { id } = useParams<{ id: string }>();
 
-    const selectedForeignAgent = useSelector((state: RootState) => state.foreignAgent.selectedForeignAgent);
+    const selectedJobOrder = useSelector((state: RootState) => state.foreignAgent.selectedJobOrder);
 
     useEffect(() => {
-        fetchForeignAgent();
+        fetchJobOrder();
     }, []);
 
-    const fetchForeignAgent = async () => {
+    const fetchJobOrder = async () => {
         setLoading(true);
         try {
-            const response = await dispatch(getForeignAgent(id));
-            if (response.type === "foreignAgent/getForeignAgent/rejected") {
+            const response = await dispatch(getJobOrder(id));
+            if (response.type === "foreignAgent/getJobOrder/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             }
         } catch (e) {
@@ -48,12 +48,12 @@ const ViewForeignAgent = () => {
                             <Group className="cursor-pointer" onClick={() => navigate(-1)}>
                                 <IconArrowLeft />
                                 <Text size="xl" fw="bold">
-                                    View Foreign Agent
+                                    View Job Order
                                 </Text>
                             </Group>
                         </Group>
                         <Group>
-                            <Text size="xs">View foreign agent details</Text>
+                            <Text size="xs">View job order details</Text>
                         </Group>
                         <Divider mt="sm" />
                     </Stack>
@@ -77,115 +77,127 @@ const ViewForeignAgent = () => {
                                         sm: "50%",
                                     }}
                                 >
-                                    {selectedForeignAgent?.foreignAgentId || "-"}
+                                    {selectedJobOrder?.jobOrderId || "-"}
                                 </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Name:
-                                </Table.Td>
-                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedForeignAgent?.name}</Table.Td>
-                            </Table.Tr>
-                            <Table.Tr>
-                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Company Name:
+                                    Foreign Agent:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
-                                    {selectedForeignAgent?.companyName || "N/A"}
+                                    {selectedJobOrder?.foreignAgentData?.name}
                                 </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Country:
+                                    Job Order Approval Number:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
-                                    <Badge variant="outline">{selectedForeignAgent?.countryData?.name}</Badge>
+                                    {selectedJobOrder?.jobOrderApprovalNumber}
                                 </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Phone:
-                                </Table.Td>
-                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedForeignAgent?.phone}</Table.Td>
-                            </Table.Tr>
-                            <Table.Tr>
-                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Alternative Phone:
+                                    Facilities:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
-                                    {selectedForeignAgent?.altPhone || "N/A"}
+                                    <Group gap="xs" wrap="wrap">
+                                        {selectedJobOrder.facilities?.map((f: any, index: number) => (
+                                            <Badge key={index} variant="light">
+                                                {f}
+                                            </Badge>
+                                        ))}
+                                    </Group>
                                 </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Email:
-                                </Table.Td>
-                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedForeignAgent?.email || "N/A"}</Table.Td>
-                            </Table.Tr>
-                            <Table.Tr>
-                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Fax:
-                                </Table.Td>
-                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedForeignAgent?.fax || "N/A"}</Table.Td>
-                            </Table.Tr>
-                            <Table.Tr>
-                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
-                                    Address:
+                                    Issued Date:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
-                                    {selectedForeignAgent?.address || "N/A"}
+                                    {datePreview(selectedJobOrder?.issuedDate)}
+                                </Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
+                                    Expired Date:
+                                </Table.Td>
+                                <Table.Td w={{ lg: "70%", sm: "50%" }}>
+                                    {datePreview(selectedJobOrder?.expiredDate)}
+                                </Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
+                                    Reference Document:
+                                </Table.Td>
+                                <Table.Td w={{ lg: "70%", sm: "50%" }}>
+                                    <Group>
+                                        <Badge
+                                            variant="outline"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() =>
+                                                window.open(
+                                                    selectedJobOrder?.reference?.filePath,
+                                                    "_blank",
+                                                    "noopener,noreferrer"
+                                                )
+                                            }
+                                        >
+                                            {selectedJobOrder?.reference?.name}
+                                        </Badge>
+                                    </Group>
                                 </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
                                     Remark:
                                 </Table.Td>
-                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedForeignAgent?.remark || "-"}</Table.Td>
+                                <Table.Td w={{ lg: "70%", sm: "50%" }}>{selectedJobOrder?.remark || "-"}</Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
                                     Status:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
-                                    <Badge color={selectedForeignAgent?.status ? "green" : "red"} radius="sm">
-                                        {selectedForeignAgent?.status ? "ACTIVE" : "INACTIVE"}
+                                    <Badge color={JOB_ORDER_STATUS_COLORS[selectedJobOrder.jobOrderStatus]} radius="sm">
+                                        {selectedJobOrder?.jobOrderStatus}
                                     </Badge>
                                 </Table.Td>
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
                     <br />
-                    <Text fw={500}>Job Orders Details</Text>
+                    <Text fw={500}>Job Details</Text>
                     <br />
                     <ScrollArea>
                         <Table striped highlightOnHover>
                             <Table.Thead>
                                 <Table.Tr>
-                                    <Table.Th w={"30%"}>Job Order Id</Table.Th>
-                                    <Table.Th w={"40%"}>Expired At</Table.Th>
-                                    <Table.Th w={"30%"}>Job Order Status</Table.Th>
+                                    <Table.Th w={"25%"}>Job Catalog</Table.Th>
+                                    <Table.Th w={"25%"}>Vacancies</Table.Th>
+                                    <Table.Th w={"25%"}>Approved Vacancies</Table.Th>
+                                    <Table.Th w={"25%"}>
+                                        Salary ({selectedJobOrder?.foreignAgentData?.countryData?.currency?.code} -{" "}
+                                        {selectedJobOrder?.foreignAgentData?.countryData?.currency?.symbol})
+                                    </Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
-                                {Array.isArray(selectedForeignAgent?.jobOrdersData) &&
-                                selectedForeignAgent?.jobOrdersData.length > 0 ? (
-                                    selectedForeignAgent?.jobOrdersData.map((j: any, i: number) => (
+                                {Array.isArray(selectedJobOrder?.jobs) && selectedJobOrder?.jobs.length > 0 ? (
+                                    selectedJobOrder?.jobs?.map((j: any, i: number) => (
                                         <Table.Tr key={j._id || i}>
-                                            <Table.Td>{j.jobOrderId}</Table.Td>
-                                            <Table.Td>{datePreview(j.expiredDate)}</Table.Td>
                                             <Table.Td>
-                                                <Badge
-                                                    radius="sm"
-                                                    color={JOB_ORDER_STATUS_COLORS[j.jobOrderStatus] || "gray"}
-                                                >
-                                                    {j.jobOrderStatus}
-                                                </Badge>{" "}
+                                                {j.jobCatalogData?.name} - {j.jobCatalogData?.specification} (
+                                                {j.ageLimit?.from} - {j.ageLimit?.to}) - {j?.gender}
                                             </Table.Td>
+                                            <Table.Td>{j.vacancies}</Table.Td>
+                                            <Table.Td>{j.approvedVacancies}</Table.Td>
+                                            <Table.Td>{amountPreview(j.salary)}</Table.Td>
                                         </Table.Tr>
                                     ))
                                 ) : (
                                     <Table.Tr>
-                                        <Table.Td colSpan={3}>
+                                        <Table.Td colSpan={4}>
                                             <div className="flex flex-col items-center justify-center py-6">
                                                 <IconDatabaseOff size={32} color="gray" />
                                                 <Text size="sm" c="dimmed" mt="sm">
@@ -204,4 +216,4 @@ const ViewForeignAgent = () => {
     );
 };
 
-export default ViewForeignAgent;
+export default ViewJobOrder;
