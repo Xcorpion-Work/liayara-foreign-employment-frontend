@@ -158,14 +158,24 @@ const BasicAppShell = () => {
                             )}
                         </NavLink>
                     )}
-                    <NavLink
-                        label="Local Agents"
-                        leftSection={<IconCurrentLocation size="1rem" stroke={1.5} />}
-                        variant="filled"
-                        active={activePath === "passengers"}
-                    >
-                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5} />} variant="light" />
-                    </NavLink>
+                    {hasAnyPrivilege(["VIEW.LOCAL.AGENT", "CREATE.LOCAL.AGENT", "EDIT.LOCAL.AGENT"]) && (
+                        <NavLink
+                            label="Local Agents"
+                            leftSection={<IconCurrentLocation size="1rem" stroke={1.5} />}
+                            variant="filled"
+                            active={activePath === "local-agents"}
+                        >
+                            {hasAnyPrivilege(["VIEW.LOCAL.AGENT", "CREATE.LOCAL.AGENT", "EDIT.LOCAL.AGENT"]) && (
+                                <NavLink
+                                    label="Registry"
+                                    leftSection={<IconList size="1rem" stroke={1.5} />}
+                                    variant="light"
+                                    onClick={() => handleNavLinkClick("local-agents/registry")}
+                                    active={subActivePath === "local-agents/registry"}
+                                />
+                            )}
+                        </NavLink>
+                    )}
                 </ScrollArea>
                 <Group className="mt-auto">
                     <NavLink

@@ -62,6 +62,9 @@ const AddEditForeignAgentRegistry = React.lazy(() => import("./pages/ForeignAgen
 const AddEditJobOrder = React.lazy(() => import("./pages/ForeignAgents/JobOrders/AddEditJobOrder.tsx"));
 const ViewForeignAgentRegistry = React.lazy(() => import("./pages/ForeignAgents/Registry/ViewForeignAgent.tsx"));
 const ViewJobOrder = React.lazy(() => import("./pages/ForeignAgents/JobOrders/ViewJobOrder.tsx"));
+const LocalAgents = React.lazy(() => import("./pages/LocalAgents/Registry"));
+const AddEditLocalAgent = React.lazy(() => import("./pages/LocalAgents/Registry/AddEditLocalAgent.tsx"));
+const ViewLocalAgent = React.lazy(() => import("./pages/LocalAgents/Registry/ViewLocalAgent.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -184,6 +187,18 @@ const router = createBrowserRouter([
             {
                 path: "foreign-agents/job-orders/view/:id",
                 element: <ViewJobOrder />,
+            },
+            {
+                path: "local-agents/registry",
+                element: <LocalAgents />,
+            },
+            {
+                path: "local-agents/registry/add-edit",
+                element: <AddEditLocalAgent />,
+            },
+            {
+                path: "local-agents/registry/view/:id",
+                element: <ViewLocalAgent />,
             },
 
             // etc.
