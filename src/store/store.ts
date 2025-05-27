@@ -6,6 +6,7 @@ import settingReducer from "./settingSlice/settingSlice";
 import subAgentReducer from "./subAgentSlice/subAgentSlice";
 import foreignAgentReducer from "./foreignAgentSlice/foreignAgentSlice";
 import localAgentReducer from "./localAgentSlice/localAgentSlice";
+import passengerReducer from "./passengerSlice/passengerSlice";
 import fileUploadReducer from "./fileUploadSlice/fileUploadSlice";
 
 export const store = configureStore({
@@ -17,6 +18,7 @@ export const store = configureStore({
         subAgent: subAgentReducer,
         foreignAgent: foreignAgentReducer,
         localAgent: localAgentReducer,
+        passenger: passengerReducer,
         fileUpload: fileUploadReducer,
     },
 });

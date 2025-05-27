@@ -53,6 +53,9 @@ const SubAgentsRegistry = () => {
         searchQuery, // name/email/phone
         status, // status
     ]);
+    const [sortField, setSortField] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
 
     const [confirmModal, setConfirmModal] = useState({
         opened: false,
@@ -63,12 +66,19 @@ const SubAgentsRegistry = () => {
 
     useEffect(() => {
         fetchSubAgents();
-    }, [page, searchQuery, status]);
+    }, [page, searchQuery, status, sortField, sortOrder]);
 
     const fetchSubAgents = async () => {
         setLoading(true);
         try {
-            const filters = { pageSize, page, searchQuery, status };
+            const filters = {
+                pageSize,
+                page,
+                searchQuery,
+                status,
+                sortField,
+                sortOrder,
+            };
             const response = await dispatch(getPagedSubAgents({ filters }));
             if (response.type === "subAgent/getPagedSubAgents/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
@@ -153,13 +163,13 @@ const SubAgentsRegistry = () => {
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th w="10%">Id</Table.Th>
-                        <Table.Th w="20%">Name</Table.Th>
-                        <Table.Th w="15%">Phone</Table.Th>
-                        <Table.Th w="20%">Email</Table.Th>
-                        <Table.Th w="20%">Passengers</Table.Th>
-                        <Table.Th w="10%">Status</Table.Th>
-                        <Table.Th w="5%">Actions</Table.Th>
+                        <Table.Th onClick={() => toggleSort("subAgentId")}><Group gap={4}>Id {sortField === "subAgentId" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("name")}><Group gap={4}>Name {sortField === "name" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("phone")}><Group gap={4}>Phone {sortField === "phone" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("email")}><Group gap={4}>Email {sortField === "email" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th>Passengers</Table.Th>
+                        <Table.Th onClick={() => toggleSort("status")}><Group gap={4}>Status {sortField === "status" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th>Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -263,6 +273,16 @@ const SubAgentsRegistry = () => {
             setLoading(false);
         }
     };
+
+    const toggleSort = (field: string) => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+            setSortOrder("asc");
+        }
+    };
+
 
     return (
         <>

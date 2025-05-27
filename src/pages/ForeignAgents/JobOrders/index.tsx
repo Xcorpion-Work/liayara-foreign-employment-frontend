@@ -12,13 +12,7 @@ import {
     Table,
     Text,
 } from "@mantine/core";
-import {
-    IconArrowLeft,
-    IconDatabaseOff,
-    IconDotsVertical,
-    IconEye,
-    IconPencil,
-} from "@tabler/icons-react";
+import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconEye, IconPencil } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../../../helpers/previlleges.ts";
 import { datePreview, pageRange } from "../../../helpers/preview.tsx";
@@ -30,10 +24,7 @@ import toNotify from "../../../hooks/toNotify.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
-import {
-    getAllForeignAgents,
-    getPagedJobOrders,
-} from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
+import { getAllForeignAgents, getPagedJobOrders } from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
 import { JOB_ORDER_STATUS_COLORS } from "../../../utils/settings.ts";
 
 const JobOrders = () => {
@@ -46,6 +37,8 @@ const JobOrders = () => {
     const isMobile = useMediaQuery("(max-width: 768px)");
     const pagedJobOrders = useSelector((state: RootState) => state.foreignAgent.jobOrders);
     const foreignAgents = useSelector((state: RootState) => state.foreignAgent.foreignAgents);
+    const [sortField, setSortField] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -81,12 +74,20 @@ const JobOrders = () => {
 
     useEffect(() => {
         fetchJobOrders();
-    }, [page, searchQuery, foreignAgent, jobOrderStatus]);
+    }, [page, searchQuery, foreignAgent, jobOrderStatus, sortField, sortOrder]);
 
     const fetchJobOrders = async () => {
         setLoading(true);
         try {
-            const filters = { pageSize, page, searchQuery, foreignAgent, jobOrderStatus };
+            const filters = {
+                pageSize,
+                page,
+                searchQuery,
+                foreignAgent,
+                jobOrderStatus,
+                sortField,
+                sortOrder,
+            };
             const response = await dispatch(getPagedJobOrders({ filters }));
             if (response.type === "foreignAgent/getPagedJobOrders/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
@@ -131,18 +132,19 @@ const JobOrders = () => {
                                                 </Menu.Item>
                                             )}
 
-                                            {(hasPrivilege("EDIT.JOB.ORDER") && jobOrder.jobOrderStatus === "PENDING") && (
-                                                <Menu.Item
-                                                    leftSection={<IconPencil size={18} />}
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/app/foreign-agents/job-orders/add-edit?id=${jobOrder._id}`
-                                                        )
-                                                    }
-                                                >
-                                                    Edit
-                                                </Menu.Item>
-                                            )}
+                                            {hasPrivilege("EDIT.JOB.ORDER") &&
+                                                jobOrder.jobOrderStatus === "PENDING" && (
+                                                    <Menu.Item
+                                                        leftSection={<IconPencil size={18} />}
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/app/foreign-agents/job-orders/add-edit?id=${jobOrder._id}`
+                                                            )
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Menu.Item>
+                                                )}
                                         </Menu.Dropdown>
                                     </Menu>
                                 )}
@@ -157,7 +159,7 @@ const JobOrders = () => {
                                 <Text size="sm">Expired At: {datePreview(jobOrder.expiredDate)}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Badge radius="sm"  color={JOB_ORDER_STATUS_COLORS[jobOrder.jobOrderStatus] || "gray"}>
+                                <Badge radius="sm" color={JOB_ORDER_STATUS_COLORS[jobOrder.jobOrderStatus] || "gray"}>
                                     {jobOrder.jobOrderStatus}
                                 </Badge>
                             </Group>
@@ -169,12 +171,12 @@ const JobOrders = () => {
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th w="10%">Id</Table.Th>
+                        <Table.Th onClick={() => toggleSort("jobOrderId")}><Group gap={4}>Id {sortField === "jobOrderId" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
                         <Table.Th w="20%">Foreign Agent</Table.Th>
-                        <Table.Th w="15%">Approval No.</Table.Th>
-                        <Table.Th w="20%">Issued Date</Table.Th>
-                        <Table.Th w="20%">Expired Date</Table.Th>
-                        <Table.Th w="10%">Status</Table.Th>
+                        <Table.Th onClick={() => toggleSort("jobOrderApprovalNumber")}><Group gap={4}>Approval No. {sortField === "jobOrderApprovalNumber" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("issuedDate")}><Group gap={4}>Issued Date {sortField === "issuedDate" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("expiredDate")}><Group gap={4}>Expired Date {sortField === "expiredDate" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("jobOrderStatus")}><Group gap={4}>Status {sortField === "jobOrderStatus" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
                         <Table.Th w="5%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
@@ -210,18 +212,19 @@ const JobOrders = () => {
                                                     View
                                                 </Menu.Item>
                                             )}
-                                            {(hasPrivilege("EDIT.JOB.ORDER") && jobOrder.jobOrderStatus === "PENDING") && (
-                                                <Menu.Item
-                                                    leftSection={<IconPencil size={18} />}
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/app/foreign-agents/job-orders/add-edit?id=${jobOrder._id}`
-                                                        )
-                                                    }
-                                                >
-                                                    Edit
-                                                </Menu.Item>
-                                            )}
+                                            {hasPrivilege("EDIT.JOB.ORDER") &&
+                                                jobOrder.jobOrderStatus === "PENDING" && (
+                                                    <Menu.Item
+                                                        leftSection={<IconPencil size={18} />}
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/app/foreign-agents/job-orders/add-edit?id=${jobOrder._id}`
+                                                            )
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Menu.Item>
+                                                )}
                                         </Menu.Dropdown>
                                     </Menu>
                                 )}
@@ -244,6 +247,15 @@ const JobOrders = () => {
         );
     }
 
+    const toggleSort = (field: string) => {
+        if (sortField === field) {
+            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+        } else {
+            setSortField(field);
+            setSortOrder("asc");
+        }
+    };
+
     return (
         <>
             {/* Header */}
@@ -258,7 +270,7 @@ const JobOrders = () => {
                                 </Text>
                             </Group>
 
-                            {(hasPrivilege("CREATE.JOB.ORDER") && !isMobile) && (
+                            {hasPrivilege("CREATE.JOB.ORDER") && !isMobile && (
                                 <Button size="sm" onClick={() => navigate("/app/foreign-agents/job-orders/add-edit")}>
                                     + Add Job Order
                                 </Button>
@@ -293,7 +305,7 @@ const JobOrders = () => {
                                 });
                             }}
                             onClear={() => {
-                                const cleared = ["", null,null];
+                                const cleared = ["", null, null];
                                 setSearchValues(cleared);
                                 setSearchParams({});
                             }}

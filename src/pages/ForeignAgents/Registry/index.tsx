@@ -53,6 +53,8 @@ const ForeignAgentRegistry = () => {
         searchQuery, // name/email/phone
         status, // status
     ]);
+    const [sortField, setSortField] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
     const [confirmModal, setConfirmModal] = useState({
         opened: false,
@@ -63,12 +65,19 @@ const ForeignAgentRegistry = () => {
 
     useEffect(() => {
         fetchForeignAgents();
-    }, [page, searchQuery, status]);
+    }, [page, searchQuery, status, sortField, sortOrder]);
 
     const fetchForeignAgents = async () => {
         setLoading(true);
         try {
-            const filters = { pageSize, page, searchQuery, status };
+            const filters = {
+                pageSize,
+                page,
+                searchQuery,
+                status,
+                sortField,
+                sortOrder,
+            };
             const response = await dispatch(getPagedForeignAgents({ filters }));
             if (response.type === "foreignAgent/getPagedForeignAgents/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
@@ -91,7 +100,9 @@ const ForeignAgentRegistry = () => {
                     <Box key={foreignAgent._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
-                                <Text fw="bold">{foreignAgent?.foreignAgentId || "-"}{" "}:{" "}{foreignAgent?.name}</Text>
+                                <Text fw="bold">
+                                    {foreignAgent?.foreignAgentId || "-"} : {foreignAgent?.name}
+                                </Text>
                                 {hasAnyPrivilege(["VIEW.FOREIGN.AGENT", "EDIT.FOREIGN.AGENT"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
@@ -104,7 +115,9 @@ const ForeignAgentRegistry = () => {
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/view/${foreignAgent._id}`)
+                                                        navigate(
+                                                            `/app/foreign-agents/registry/view/${foreignAgent._id}`
+                                                        )
                                                     }
                                                 >
                                                     View
@@ -115,7 +128,9 @@ const ForeignAgentRegistry = () => {
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/add-edit?id=${foreignAgent._id}`)
+                                                        navigate(
+                                                            `/app/foreign-agents/registry/add-edit?id=${foreignAgent._id}`
+                                                        )
                                                     }
                                                 >
                                                     Edit
@@ -125,7 +140,9 @@ const ForeignAgentRegistry = () => {
                                                 <Menu.Item
                                                     leftSection={<IconMobiledataOff size={18} />}
                                                     color={foreignAgent.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(foreignAgent._id, !foreignAgent.status)}
+                                                    onClick={() =>
+                                                        openConfirmModal(foreignAgent._id, !foreignAgent.status)
+                                                    }
                                                 >
                                                     {foreignAgent.status ? "Deactivate" : "Activate"}
                                                 </Menu.Item>
@@ -153,12 +170,38 @@ const ForeignAgentRegistry = () => {
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th w="10%">Id</Table.Th>
-                        <Table.Th w="20%">Name</Table.Th>
-                        <Table.Th w="15%">Phone</Table.Th>
-                        <Table.Th w="20%">Email</Table.Th>
+                        <Table.Th onClick={() => toggleSort("foreignAgentId")}>
+                            <Group gap={4}>
+                                Id{" "}
+                                {sortField === "foreignAgentId" && (
+                                    <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>
+                                )}
+                            </Group>
+                        </Table.Th>
+                        <Table.Th onClick={() => toggleSort("name")}>
+                            <Group gap={4}>
+                                Name {sortField === "name" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
+                        <Table.Th onClick={() => toggleSort("phone")}>
+                            <Group gap={4}>
+                                Phone{" "}
+                                {sortField === "phone" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
+                        <Table.Th onClick={() => toggleSort("email")}>
+                            <Group gap={4}>
+                                Email{" "}
+                                {sortField === "email" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
                         <Table.Th w="20%">Job Orders</Table.Th>
-                        <Table.Th w="10%">Status</Table.Th>
+                        <Table.Th onClick={() => toggleSort("status")}>
+                            <Group gap={4}>
+                                Status{" "}
+                                {sortField === "status" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
                         <Table.Th w="5%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
@@ -190,7 +233,9 @@ const ForeignAgentRegistry = () => {
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/view/${foreignAgent._id}`)
+                                                        navigate(
+                                                            `/app/foreign-agents/registry/view/${foreignAgent._id}`
+                                                        )
                                                     }
                                                 >
                                                     View
@@ -200,7 +245,9 @@ const ForeignAgentRegistry = () => {
                                                 <Menu.Item
                                                     leftSection={<IconPencil size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/foreign-agents/registry/add-edit?id=${foreignAgent._id}`)
+                                                        navigate(
+                                                            `/app/foreign-agents/registry/add-edit?id=${foreignAgent._id}`
+                                                        )
                                                     }
                                                 >
                                                     Edit
@@ -210,7 +257,9 @@ const ForeignAgentRegistry = () => {
                                                 <Menu.Item
                                                     leftSection={<IconMobiledataOff size={18} />}
                                                     color={foreignAgent.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(foreignAgent._id, !foreignAgent.status)}
+                                                    onClick={() =>
+                                                        openConfirmModal(foreignAgent._id, !foreignAgent.status)
+                                                    }
                                                 >
                                                     {foreignAgent.status ? "Deactivate" : "Activate"}
                                                 </Menu.Item>
@@ -261,6 +310,15 @@ const ForeignAgentRegistry = () => {
             toNotify("Something went wrong", "Please contact system admin", "WARNING");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const toggleSort = (field: string) => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+            setSortOrder("asc");
         }
     };
 
