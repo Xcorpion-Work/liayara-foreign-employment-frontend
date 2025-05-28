@@ -23,3 +23,7 @@ export const pageRange = (pageIndex: number, pageSize: number, total: number) =>
     const end: number = Math.min(pageIndex * pageSize, total);
     return `${start} - ${end} / ${total}`;
 };
+
+export const statusPreview = (statusCode: string = ""): string => {
+    return statusCode.replace(/_/g, " ");
+};

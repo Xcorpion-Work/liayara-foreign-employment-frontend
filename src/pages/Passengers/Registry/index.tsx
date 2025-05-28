@@ -31,10 +31,10 @@ import ConfirmModal from "../../../components/confirmModal.tsx";
 import toNotify from "../../../hooks/toNotify.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
-import { getPagedLocalAgents, updateLocalAgent } from "../../../store/localAgentSlice/localAgentSlice.ts";
+import { getPagedPassengers, updatePassenger } from "../../../store/passengerSlice/passengerSlice.ts";
 import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
 
-const LocalAgentsRegistry = () => {
+const PassengersRegistry = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch | any>();
     const { hasPrivilege, hasAnyPrivilege } = usePermission();
@@ -42,17 +42,14 @@ const LocalAgentsRegistry = () => {
     const pageSize = 10;
     const [totalRecords, setTotalRecords] = useState(0);
     const isMobile = useMediaQuery("(max-width: 768px)");
-    const pagedLocalAgents = useSelector((state: RootState) => state.localAgent.localAgents);
+    const pagedPassengers = useSelector((state: RootState) => state.passenger.passengers);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get("page") ?? "1");
     const searchQuery = searchParams.get("search") ?? "";
     const status = searchParams.get("status") ?? "";
 
-    const [searchValues, setSearchValues] = useState<any[]>([
-        searchQuery, // name/email/phone
-        status, // status
-    ]);
+    const [searchValues, setSearchValues] = useState<any[]>([searchQuery, status]);
     const [sortField, setSortField] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -64,10 +61,10 @@ const LocalAgentsRegistry = () => {
     const [confirmType, setConfirmType] = useState<"activate" | "deactivate">("activate");
 
     useEffect(() => {
-        fetchLocalAgents();
+        fetchPassengers();
     }, [page, searchQuery, status, sortField, sortOrder]);
 
-    const fetchLocalAgents = async () => {
+    const fetchPassengers = async () => {
         setLoading(true);
         try {
             const filters = {
@@ -78,8 +75,8 @@ const LocalAgentsRegistry = () => {
                 sortField,
                 sortOrder,
             };
-            const response = await dispatch(getPagedLocalAgents({ filters }));
-            if (response.type === "localAgent/getPagedLocalAgents/rejected") {
+            const response = await dispatch(getPagedPassengers({ filters }));
+            if (response.type === "passenger/getPagedPassengers/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             }
             setTotalRecords(response?.payload?.response?.total || 0);
@@ -103,12 +100,12 @@ const LocalAgentsRegistry = () => {
         setLoading(true);
         try {
             const payload = { id: confirmModal.id, status: confirmModal.status };
-            const response = await dispatch(updateLocalAgent(payload));
-            if (response.type === "localAgent/updateLocalAgent/rejected") {
+            const response = await dispatch(updatePassenger(payload));
+            if (response.type === "passenger/updatePassenger/rejected") {
                 toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
             } else {
-                toNotify("Success", "Local agent updated successfully", "SUCCESS");
-                fetchLocalAgents();
+                toNotify("Success", "Passenger updated successfully", "SUCCESS");
+                fetchPassengers();
             }
         } catch (e) {
             console.error(e);
@@ -118,18 +115,27 @@ const LocalAgentsRegistry = () => {
         }
     };
 
+    const toggleSort = (field: string) => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+            setSortOrder("asc");
+        }
+    };
+
     let contentView;
-    if (Array.isArray(pagedLocalAgents) && pagedLocalAgents.length > 0) {
+    if (Array.isArray(pagedPassengers) && pagedPassengers.length > 0) {
         contentView = isMobile ? (
             <Stack gap="md">
-                {pagedLocalAgents.map((agent: any, index: number) => (
-                    <Box key={agent._id || index}>
+                {pagedPassengers.map((passenger: any, index: number) => (
+                    <Box key={passenger._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
                                 <Text fw="bold">
-                                    {agent?.localAgentId || "-"} : {agent?.name}
+                                    {passenger?.passengerId || "-"} : {passenger?.name}
                                 </Text>
-                                {hasAnyPrivilege(["VIEW.LOCAL.AGENT", "EDIT.LOCAL.AGENT"]) && (
+                                {hasAnyPrivilege(["VIEW.PASSENGER", "EDIT.PASSENGER"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -137,48 +143,48 @@ const LocalAgentsRegistry = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.LOCAL.AGENT") && (
+                                            {hasPrivilege("VIEW.PASSENGER") && (
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/local-agents/registry/view/${agent._id}`)
+                                                        navigate(`/app/passengers/registry/view/${passenger._id}`)
                                                     }
                                                 >
                                                     View
                                                 </Menu.Item>
                                             )}
-                                            {hasPrivilege("EDIT.LOCAL.AGENT") && (
-                                                <Menu.Item
-                                                    leftSection={<IconPencil size={18} />}
-                                                    onClick={() =>
-                                                        navigate(`/app/local-agents/registry/add-edit?id=${agent._id}`)
-                                                    }
-                                                >
-                                                    Edit
-                                                </Menu.Item>
-                                            )}
-                                            {hasPrivilege("EDIT.LOCAL.AGENT") && (
-                                                <Menu.Item
-                                                    leftSection={<IconMobiledataOff size={18} />}
-                                                    color={agent.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(agent._id, !agent.status)}
-                                                >
-                                                    {agent.status ? "Deactivate" : "Activate"}
-                                                </Menu.Item>
+                                            {hasPrivilege("EDIT.PASSENGER") && (
+                                                <>
+                                                    <Menu.Item
+                                                        leftSection={<IconPencil size={18} />}
+                                                        onClick={() =>
+                                                            navigate(`/app/passengers/registry/add-edit?id=${passenger._id}`)
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        leftSection={<IconMobiledataOff size={18} />}
+                                                        color={passenger.status ? "red" : "green"}
+                                                        onClick={() => openConfirmModal(passenger._id, !passenger.status)}
+                                                    >
+                                                        {passenger.status ? "Deactivate" : "Activate"}
+                                                    </Menu.Item>
+                                                </>
                                             )}
                                         </Menu.Dropdown>
                                     </Menu>
                                 )}
                             </Group>
                             <Group mt="xs">
-                                <Text size="sm">Phone: {agent.phone}</Text>
+                                <Text size="sm">Phone: {passenger.phone}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Text size="sm">Email: {agent.email || "N/A"}</Text>
+                                <Text size="sm">Email: {passenger.email || "N/A"}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Badge radius="sm" color={agent.status ? "green" : "red"}>
-                                    {agent.status ? "ACTIVE" : "INACTIVE"}
+                                <Badge radius="sm" color={passenger.status ? "green" : "red"}>
+                                    {passenger.status ? "ACTIVE" : "INACTIVE"}
                                 </Badge>
                             </Group>
                         </Card>
@@ -189,32 +195,28 @@ const LocalAgentsRegistry = () => {
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th onClick={() => toggleSort("localAgentId")}><Group gap={4}>Id {sortField === "localAgentId" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("passengerId")}><Group gap={4}>Id {sortField === "passengerId" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
                         <Table.Th onClick={() => toggleSort("name")}><Group gap={4}>Name {sortField === "name" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
                         <Table.Th onClick={() => toggleSort("phone")}><Group gap={4}>Phone {sortField === "phone" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
                         <Table.Th onClick={() => toggleSort("email")}><Group gap={4}>Email {sortField === "email" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
-                        <Table.Th w="20%">Passengers</Table.Th>
                         <Table.Th onClick={() => toggleSort("status")}><Group gap={4}>Status {sortField === "status" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
                         <Table.Th w="5%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {pagedLocalAgents.map((agent: any, index: number) => (
-                        <Table.Tr key={agent._id || index}>
-                            <Table.Td>{agent.localAgentId || "-"}</Table.Td>
-                            <Table.Td>{agent.name}</Table.Td>
-                            <Table.Td>{agent.phone}</Table.Td>
-                            <Table.Td>{agent.email || "N/A"}</Table.Td>
+                    {pagedPassengers.map((passenger: any, index: number) => (
+                        <Table.Tr key={passenger._id || index}>
+                            <Table.Td>{passenger.passengerId || "-"}</Table.Td>
+                            <Table.Td>{passenger.name}</Table.Td>
+                            <Table.Td>{passenger.phone}</Table.Td>
+                            <Table.Td>{passenger.email || "N/A"}</Table.Td>
                             <Table.Td>
-                                <Badge variant="outline">{agent.passengers?.length || 0} Passengers</Badge>
-                            </Table.Td>
-                            <Table.Td>
-                                <Badge color={agent.status ? "green" : "red"} radius="sm">
-                                    {agent.status ? "ACTIVE" : "INACTIVE"}
+                                <Badge color={passenger.status ? "green" : "red"} radius="sm">
+                                    {passenger.status ? "ACTIVE" : "INACTIVE"}
                                 </Badge>
                             </Table.Td>
                             <Table.Td>
-                                {hasAnyPrivilege(["VIEW.LOCAL.AGENT", "EDIT.LOCAL.AGENT"]) && (
+                                {hasAnyPrivilege(["VIEW.PASSENGER", "EDIT.PASSENGER"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
                                         <Menu.Target>
                                             <ActionIcon variant="subtle" color="gray">
@@ -222,34 +224,34 @@ const LocalAgentsRegistry = () => {
                                             </ActionIcon>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            {hasPrivilege("VIEW.LOCAL.AGENT") && (
+                                            {hasPrivilege("VIEW.PASSENGER") && (
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/local-agents/registry/view/${agent._id}`)
+                                                        navigate(`/app/passengers/registry/view/${passenger._id}`)
                                                     }
                                                 >
                                                     View
                                                 </Menu.Item>
                                             )}
-                                            {hasPrivilege("EDIT.LOCAL.AGENT") && (
-                                                <Menu.Item
-                                                    leftSection={<IconPencil size={18} />}
-                                                    onClick={() =>
-                                                        navigate(`/app/local-agents/registry/add-edit?id=${agent._id}`)
-                                                    }
-                                                >
-                                                    Edit
-                                                </Menu.Item>
-                                            )}
-                                            {hasPrivilege("EDIT.LOCAL.AGENT") && (
-                                                <Menu.Item
-                                                    leftSection={<IconMobiledataOff size={18} />}
-                                                    color={agent.status ? "red" : "green"}
-                                                    onClick={() => openConfirmModal(agent._id, !agent.status)}
-                                                >
-                                                    {agent.status ? "Deactivate" : "Activate"}
-                                                </Menu.Item>
+                                            {hasPrivilege("EDIT.PASSENGER") && (
+                                                <>
+                                                    <Menu.Item
+                                                        leftSection={<IconPencil size={18} />}
+                                                        onClick={() =>
+                                                            navigate(`/app/passengers/registry/add-edit?id=${passenger._id}`)
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        leftSection={<IconMobiledataOff size={18} />}
+                                                        color={passenger.status ? "red" : "green"}
+                                                        onClick={() => openConfirmModal(passenger._id, !passenger.status)}
+                                                    >
+                                                        {passenger.status ? "Deactivate" : "Activate"}
+                                                    </Menu.Item>
+                                                </>
                                             )}
                                         </Menu.Dropdown>
                                     </Menu>
@@ -273,18 +275,8 @@ const LocalAgentsRegistry = () => {
         );
     }
 
-    const toggleSort = (field: string) => {
-        if (sortField === field) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-        } else {
-            setSortField(field);
-            setSortOrder("asc");
-        }
-    };
-
     return (
         <>
-            {/* Header */}
             <Box display="flex" p="lg" className="items-center justify-between">
                 <Box className="h-full w-full">
                     <Stack gap={1}>
@@ -292,23 +284,22 @@ const LocalAgentsRegistry = () => {
                             <Group>
                                 <IconArrowLeft className="cursor-pointer" onClick={() => navigate(-1)} />
                                 <Text size="xl" fw="bold">
-                                    Local Agents Registry
+                                    Passengers Registry
                                 </Text>
                             </Group>
-
-                            {hasPrivilege("CREATE.LOCAL.AGENT") && (
-                                <Button size="sm" onClick={() => navigate("/app/local-agents/registry/add-edit")}>
-                                    + Add Local Agent
+                            {hasPrivilege("CREATE.PASSENGER") && (
+                                <Button size="sm" onClick={() => navigate("/app/passengers/registry/add-edit")}>
+                                    + Add Passenger
                                 </Button>
                             )}
                         </Group>
                         <Group>
-                            <Text size="xs">Manage your local agents</Text>
+                            <Text size="xs">Manage your passengers</Text>
                         </Group>
                         <Divider mt="sm" />
                         <DynamicSearchBar
                             fields={[
-                                { type: "text", placeholder: "Local Agent Id, Name, Phone, Email" },
+                                { type: "text", placeholder: "Passenger Id, Name, Phone, Email" },
                                 {
                                     type: "select",
                                     placeholder: "Select a status",
@@ -325,8 +316,7 @@ const LocalAgentsRegistry = () => {
                                 });
                             }}
                             onClear={() => {
-                                const cleared = ["", null];
-                                setSearchValues(cleared);
+                                setSearchValues(["", null]);
                                 setSearchParams({});
                             }}
                         />
@@ -335,11 +325,9 @@ const LocalAgentsRegistry = () => {
                 </Box>
             </Box>
 
-            {/* Content */}
             <Box p="lg">
                 <Box>{contentView}</Box>
 
-                {/* Pagination */}
                 <Group my="md" justify="space-between">
                     <Group>{pageRange(page, pageSize, totalRecords)}</Group>
                     <Pagination.Root
@@ -368,16 +356,15 @@ const LocalAgentsRegistry = () => {
                 </Group>
             </Box>
 
-            {/* Confirm Modal */}
             <ConfirmModal
                 opened={confirmModal.opened}
                 onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
                 onConfirm={handleConfirmStatus}
-                title={confirmType === "activate" ? "Activate Local Agent" : "Deactivate Local Agent"}
+                title={confirmType === "activate" ? "Activate Passenger" : "Deactivate Passenger"}
                 message={
                     confirmType === "activate"
-                        ? "Are you sure you want to activate this local agent?"
-                        : "Are you sure you want to deactivate this local agent?"
+                        ? "Are you sure you want to activate this passenger?"
+                        : "Are you sure you want to deactivate this passenger?"
                 }
                 confirmLabel={confirmType === "activate" ? "Activate" : "Deactivate"}
                 cancelLabel="Cancel"
@@ -387,4 +374,4 @@ const LocalAgentsRegistry = () => {
     );
 };
 
-export default LocalAgentsRegistry;
+export default PassengersRegistry;

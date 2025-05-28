@@ -13,6 +13,7 @@ import {
     Modal,
     TextInput,
     Textarea,
+    Select,
 } from "@mantine/core";
 import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconMobiledataOff, IconPencil } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
@@ -200,10 +201,12 @@ const PassengerDocuments = () => {
         initialValues: {
             name: "",
             description: "",
+            type: "",
         },
         validate: {
             name: isNotEmpty("Name is required"),
             description: isNotEmpty("Description is required"),
+            type: isNotEmpty("Type is required"),
         },
     });
 
@@ -213,6 +216,7 @@ const PassengerDocuments = () => {
         form.setValues({
             name: data.name,
             description: data.description || "",
+            type: data.type || ""
         });
         form.resetDirty();
         documentTypeModalHandle.open(); // Ensure it's here at the end
@@ -281,7 +285,7 @@ const PassengerDocuments = () => {
                     <Stack gap={1}>
                         <Group justify="space-between" align="center" w="100%">
                             <Group>
-                                <IconArrowLeft  className="cursor-pointer" onClick={() => navigate("/app/settings")} />
+                                <IconArrowLeft className="cursor-pointer" onClick={() => navigate("/app/settings")} />
                                 <Text size="xl" fw="bold">
                                     Passenger Document Types
                                 </Text>
@@ -340,6 +344,13 @@ const PassengerDocuments = () => {
                             withAsterisk
                             {...form.getInputProps("description")}
                         />
+                        <Select
+                            label="Type"
+                            placeholder="Add a type"
+                            withAsterisk
+                            data={["Image", "Document"]}
+                            {...form.getInputProps("type")}
+                        />
                         <Button mt="sm" loading={isLoading} type="submit" disabled={!form.isDirty()}>
                             Submit
                         </Button>
@@ -352,7 +363,11 @@ const PassengerDocuments = () => {
                 opened={confirmModal.opened}
                 onClose={() => setConfirmModal({ opened: false, id: "", status: false })}
                 onConfirm={handleConfirmStatus}
-                title={confirmType === "activate" ? "Activate Passenger Document Type" : "Deactivate Passenger Document Type"}
+                title={
+                    confirmType === "activate"
+                        ? "Activate Passenger Document Type"
+                        : "Deactivate Passenger Document Type"
+                }
                 message={
                     confirmType === "activate"
                         ? "Are you sure you want to activate this Passenger Document Type?"

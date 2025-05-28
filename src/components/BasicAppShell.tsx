@@ -66,7 +66,7 @@ const BasicAppShell = () => {
                 collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
             }}
             padding="md"
-            zIndex={1}
+            zIndex={25}
         >
             <AppShell.Header>
                 <Group h="100%" px="md" justify="space-between">
@@ -98,14 +98,24 @@ const BasicAppShell = () => {
                         variant="filled"
                         active={activePath === "dashboard"}
                     />
-                    <NavLink
-                        label="Passengers"
-                        leftSection={<IconUsersGroup size="1rem" stroke={1.5} />}
-                        variant="filled"
-                        active={activePath === "passengers"}
-                    >
-                        <NavLink label="Registry" leftSection={<IconList size="1rem" stroke={1.5} />} variant="light" />
-                    </NavLink>
+                    {hasAnyPrivilege(["VIEW.PASSENGER", "CREATE.PASSENGER", "EDIT.PASSENGER"]) && (
+                        <NavLink
+                            label="Passengers"
+                            leftSection={<IconUsersGroup size="1rem" stroke={1.5} />}
+                            variant="filled"
+                            active={activePath === "passengers"}
+                        >
+                            {hasAnyPrivilege(["VIEW.PASSENGER", "CREATE.PASSENGER", "EDIT.PASSENGER"]) && (
+                                <NavLink
+                                    label="Registry"
+                                    leftSection={<IconList size="1rem" stroke={1.5} />}
+                                    variant="light"
+                                    onClick={() => handleNavLinkClick("passengers/registry")}
+                                    active={subActivePath === "passengers/registry"}
+                                />
+                            )}
+                        </NavLink>
+                    )}
                     {hasAnyPrivilege(["VIEW.SUB.AGENT", "CREATE.SUB.AGENT", "EDIT.SUB.AGENT"]) && (
                         <NavLink
                             label="Sub Agents"
