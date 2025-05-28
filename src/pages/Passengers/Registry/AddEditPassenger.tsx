@@ -24,6 +24,8 @@ import { isValidPhone } from "../../../utils/inputValidators.ts";
 import { createPassenger, getPassenger, updatePassenger } from "../../../store/passengerSlice/passengerSlice.ts";
 import { DatePickerInput } from "@mantine/dates";
 import { getAllCountries, getAllJobCatalogs } from "../../../store/settingSlice/settingSlice.ts";
+import { getAllSubAgents } from "../../../store/subAgentSlice/subAgentSlice.ts";
+import { getAllLocalAgents } from "../../../store/localAgentSlice/localAgentSlice.ts";
 
 interface UserFormValues {
     firstName: string;
@@ -62,6 +64,8 @@ const AddEditPassenger = () => {
     const selectedPassenger = useSelector((state: RootState) => state.passenger.selectedPassenger);
     const jobs = useSelector((state: RootState) => state.setting.jobCatalogs);
     const countries = useSelector((state: RootState) => state.setting.countries);
+    const subAgents = useSelector((state: RootState) => state.subAgent.subAgents);
+    const localAgents = useSelector((state: RootState) => state.localAgent.localAgents);
     const [passengerType, setPassengerType] = useState<string>("Direct Passenger");
 
     useEffect(() => {
@@ -70,6 +74,7 @@ const AddEditPassenger = () => {
         }
         fetchJobCatalog();
         fetchCountries();
+        fetchAgents();
     }, []);
 
     useEffect(() => {
@@ -77,7 +82,7 @@ const AddEditPassenger = () => {
             const [firstName = "", lastName = ""] = selectedPassenger?.name?.split(" ") || [];
             form.setValues({
                 nic: selectedPassenger.nic || "",
-                birthday: new Date(selectedPassenger.birthday),
+                birthday: selectedPassenger.birthday ? new Date(selectedPassenger.birthday) : null,
                 religion: selectedPassenger.religion || "",
                 gender: selectedPassenger.gender || "",
                 maritalStatus: selectedPassenger.maritalStatus || "",
@@ -149,6 +154,27 @@ const AddEditPassenger = () => {
         }
     };
 
+    const fetchAgents = async () => {
+        setLoading(true);
+        try {
+            const filters = { status: true };
+            const subAgents = await dispatch(getAllSubAgents({ filters }));
+            const localAgents = await dispatch(getAllLocalAgents({ filters }));
+            if (
+                subAgents.type === "subAgent/getAllSubAgents/rejected" ||
+                localAgents.type === "localAgent/getAllLocalAgents/rejected"
+            ) {
+                toNotify("Error", subAgents.payload.error || "Please contact system admin", "ERROR");
+                toNotify("Error", localAgents.payload.error || "Please contact system admin", "ERROR");
+            }
+        } catch (e) {
+            console.error(e);
+            toNotify("Something went wrong", "Please contact system admin", "WARNING");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const form = useForm<UserFormValues>({
         initialValues: {
             firstName: "",
@@ -196,6 +222,30 @@ const AddEditPassenger = () => {
             altPhone: (value) => (value && !isValidPhone(value) ? "Phone number is invalid" : null),
             subAgent: (value) => (passengerType === "Sub Agent" && !value ? "Sub agent is required" : null),
             localAgent: (value) => (passengerType === "Local Agent" && !value ? "Local agent is required" : null),
+            height: (value) => {
+                if (isEditMode && value == 0) {
+                    return "Height should not br 0cm";
+                }
+                return null;
+            },
+            weight: (value) => {
+                if (isEditMode && value == 0) {
+                    return "Weight should not br 0cm";
+                }
+                return null;
+            },
+            desiredJobs: (value) => {
+                if (isEditMode && value.length === 0) {
+                    return "At least one desired job selected";
+                }
+                return null;
+            },
+            desiredCountries: (value) => {
+                if (isEditMode && value.length === 0) {
+                    return "At least one desired country selected";
+                }
+                return null;
+            },
         },
     });
 
@@ -325,6 +375,7 @@ const AddEditPassenger = () => {
                             <NumberInput
                                 label="Height"
                                 suffix=" CM"
+                                withAsterisk={isEditMode}
                                 placeholder="Enter height"
                                 allowNegative={false}
                                 {...form.getInputProps("height")}
@@ -332,6 +383,7 @@ const AddEditPassenger = () => {
                             <NumberInput
                                 label="Weight"
                                 suffix=" KG"
+                                withAsterisk={isEditMode}
                                 placeholder="Enter weight"
                                 allowNegative={false}
                                 {...form.getInputProps("weight")}
@@ -380,13 +432,15 @@ const AddEditPassenger = () => {
                                 }))}
                                 placeholder="Select a desired job"
                                 label="Desired Job"
-                                {...form.getInputProps("desiredJob")}
+                                withAsterisk={isEditMode}
+                                {...form.getInputProps("desiredJobs")}
                             />
                             <MultiSelect
                                 data={countries.map((country: any) => ({ label: country.name, value: country._id }))}
                                 placeholder="Select a desired country"
                                 label="Desired Country"
-                                {...form.getInputProps("desiredCountry")}
+                                withAsterisk={isEditMode}
+                                {...form.getInputProps("desiredCountries")}
                             />
                         </SimpleGrid>
 
@@ -415,7 +469,7 @@ const AddEditPassenger = () => {
                             />
                             {passengerType === "Sub Agent" && (
                                 <Select
-                                    data={[]}
+                                    data={subAgents.map((sa: any) => ({ label: sa.name, value: sa._id }))}
                                     value={passengerType}
                                     placeholder="Select a sub agent"
                                     label="Sub Agent"
@@ -425,7 +479,7 @@ const AddEditPassenger = () => {
                             )}
                             {passengerType === "Local Agent" && (
                                 <Select
-                                    data={[]}
+                                    data={localAgents.map((sa: any) => ({ label: sa.name, value: sa._id }))}
                                     placeholder="Select a local agent"
                                     value={passengerType}
                                     withAsterisk

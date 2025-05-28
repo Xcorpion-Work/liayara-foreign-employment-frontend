@@ -1,14 +1,5 @@
-import {
-    Badge,
-    Box,
-    Divider,
-    Group,
-    ScrollArea,
-    Stack,
-    Table,
-    Text,
-} from "@mantine/core";
-import { IconArrowLeft, IconDatabaseOff } from "@tabler/icons-react";
+import { Badge, Box, Button, Divider, Group, Stack, Table, Text } from "@mantine/core";
+import { IconArrowLeft } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
@@ -16,6 +7,8 @@ import { useLoading } from "../../../hooks/loadingContext.tsx";
 import { useEffect } from "react";
 import toNotify from "../../../hooks/toNotify.tsx";
 import { getPassenger } from "../../../store/passengerSlice/passengerSlice.ts";
+import { datePreview, statusPreview } from "../../../helpers/preview.tsx";
+import { STATUS_COLORS } from "../../../utils/settings.ts";
 
 const ViewPassenger = () => {
     const navigate = useNavigate();
@@ -23,9 +16,7 @@ const ViewPassenger = () => {
     const { setLoading } = useLoading();
 
     const { id } = useParams<{ id: string }>();
-    const selectedPassenger = useSelector(
-        (state: RootState) => state.passenger.selectedPassenger
-    );
+    const selectedPassenger = useSelector((state: RootState) => state.passenger.selectedPassenger);
 
     useEffect(() => {
         fetchPassenger();
@@ -71,7 +62,21 @@ const ViewPassenger = () => {
             {/* Info Table */}
             <Box display="flex" px="lg" pb="lg" className="items-center justify-between">
                 <Box className="h-full w-full">
-                    <Text fw={500}>Passenger Details</Text>
+                    <Box className="flex justify-between items-center w-full">
+                        <Text fw={500}>Passenger Details</Text>
+                        {!selectedPassenger?.isCompletedDetails && (
+                            <Button
+                                size="xs"
+                                variant="outline"
+                                onClick={() =>
+                                    navigate(`/app/passengers/registry/add-edit?id=${selectedPassenger._id}`)
+                                }
+                            >
+                                Complete Details
+                            </Button>
+                        )}
+                    </Box>
+
                     <br />
                     <Table withRowBorders={false}>
                         <Table.Tbody>
@@ -104,8 +109,58 @@ const ViewPassenger = () => {
                                 <Table.Td>{selectedPassenger?.address || "N/A"}</Table.Td>
                             </Table.Tr>
                             <Table.Tr>
+                                <Table.Td fw={"bold"}>NIC:</Table.Td>
+                                <Table.Td>{selectedPassenger?.nic || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Gender:</Table.Td>
+                                <Table.Td>{selectedPassenger?.gender || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Birthday:</Table.Td>
+                                <Table.Td>{datePreview(selectedPassenger?.birthday)}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Marital Status:</Table.Td>
+                                <Table.Td>{selectedPassenger?.maritalStatus}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Number of Children:</Table.Td>
+                                <Table.Td>{selectedPassenger?.numberOfChildren}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Height:</Table.Td>
+                                <Table.Td>{selectedPassenger?.height} CM</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Weight:</Table.Td>
+                                <Table.Td>{selectedPassenger?.weight} KG</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Covid Vaccinated:</Table.Td>
+                                <Table.Td>
+                                    <Badge variant="outline">{selectedPassenger?.covidVaccinated ? "Yes" : "No"}</Badge>
+                                </Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Abroad Experience:</Table.Td>
+                                <Table.Td>
+                                    <Badge variant="outline">
+                                        {selectedPassenger?.abroadExperience ? "Yes" : "No"}
+                                    </Badge>
+                                </Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
                                 <Table.Td fw={"bold"}>Remark:</Table.Td>
                                 <Table.Td>{selectedPassenger?.remark || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Passenger Status:</Table.Td>
+                                <Table.Td>
+                                    <Badge radius="sm" color={STATUS_COLORS[selectedPassenger?.passengerStatus]}>
+                                        {statusPreview(selectedPassenger?.passengerStatus)}
+                                    </Badge>
+                                </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td fw={"bold"}>Status:</Table.Td>
@@ -117,42 +172,6 @@ const ViewPassenger = () => {
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
-
-                    <br />
-                    <Text fw={500}>Related Sub-Passengers</Text>
-                    <br />
-                    <ScrollArea>
-                        <Table striped highlightOnHover>
-                            <Table.Thead>
-                                <Table.Tr>
-                                    <Table.Th>Name</Table.Th>
-                                    <Table.Th>Phone</Table.Th>
-                                </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                                {Array.isArray(selectedPassenger?.passengers) &&
-                                selectedPassenger?.passengers.length > 0 ? (
-                                    selectedPassenger.passengers.map((p: any, i: number) => (
-                                        <Table.Tr key={p._id || i}>
-                                            <Table.Td>{p.username}</Table.Td>
-                                            <Table.Td>{p.phone}</Table.Td>
-                                        </Table.Tr>
-                                    ))
-                                ) : (
-                                    <Table.Tr>
-                                        <Table.Td colSpan={2}>
-                                            <div className="flex flex-col items-center justify-center py-6">
-                                                <IconDatabaseOff size={32} color="gray" />
-                                                <Text size="sm" c="dimmed" mt="sm">
-                                                    No data available
-                                                </Text>
-                                            </div>
-                                        </Table.Td>
-                                    </Table.Tr>
-                                )}
-                            </Table.Tbody>
-                        </Table>
-                    </ScrollArea>
                 </Box>
             </Box>
         </>
