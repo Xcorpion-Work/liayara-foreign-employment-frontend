@@ -10,8 +10,12 @@ export const usePermission = () => {
     };
 
     const hasAnyPrivilege = (permissions: string[]): boolean => {
-        return permissions.some(permission => permissionCodes.includes(permission));
+        return permissions.some((permission) => permissionCodes.includes(permission));
     };
 
-    return { hasPrivilege, hasAnyPrivilege };
+    const hasRolePrivilege = (roleIds: string[]): boolean => {
+        return !!loggedInUser?.role?._id && roleIds?.includes(loggedInUser.role._id);
+    };
+
+    return { hasPrivilege, hasAnyPrivilege, hasRolePrivilege };
 };

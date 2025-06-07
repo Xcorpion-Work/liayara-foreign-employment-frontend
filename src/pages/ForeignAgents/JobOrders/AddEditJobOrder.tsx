@@ -78,7 +78,7 @@ const AddEditJobOrder = () => {
             form.setValues({
                 foreignAgent: selectedJobOrder.foreignAgent || "",
                 jobOrderApprovalNumber: selectedJobOrder.jobOrderApprovalNumber || "",
-                facilities: selectedJobOrder.facilities || [],
+                facilities: selectedJobOrder?.facilities || [],
                 jobs: selectedJobOrder.jobs || [],
                 issuedDate: selectedJobOrder.issuedDate ? new Date(selectedJobOrder.issuedDate) : null,
                 expiredDate: selectedJobOrder.expiredDate ? new Date(selectedJobOrder.expiredDate) : null,
@@ -93,7 +93,7 @@ const AddEditJobOrder = () => {
             form.setValues({
                 foreignAgent: selectedJobOrder.foreignAgent || "",
                 jobOrderApprovalNumber: selectedJobOrder.jobOrderApprovalNumber || "",
-                facilities: selectedJobOrder.facilities || [],
+                facilities: selectedJobOrder?.facilities || [],
                 jobs: selectedJobOrder.jobs || [],
                 issuedDate: selectedJobOrder.issuedDate ? new Date(selectedJobOrder.issuedDate) : null,
                 expiredDate: selectedJobOrder.expiredDate ? new Date(selectedJobOrder.expiredDate) : null,

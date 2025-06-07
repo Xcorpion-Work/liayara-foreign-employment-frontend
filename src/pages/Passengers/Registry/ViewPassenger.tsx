@@ -1,5 +1,5 @@
-import { Badge, Box, Button, Divider, Group, Stack, Table, Text } from "@mantine/core";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { Alert, Badge, Box, Button, Divider, Group, SimpleGrid, Stack, Table, Text } from "@mantine/core";
+import { IconArrowLeft, IconInfoCircle } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
@@ -9,18 +9,47 @@ import toNotify from "../../../hooks/toNotify.tsx";
 import { getPassenger } from "../../../store/passengerSlice/passengerSlice.ts";
 import { datePreview, statusPreview } from "../../../helpers/preview.tsx";
 import { STATUS_COLORS } from "../../../utils/settings.ts";
+import { usePermission } from "../../../helpers/previlleges.ts";
+import { useMediaQuery } from "@mantine/hooks";
+import { getAllJobOrders } from "../../../store/foreignAgentSlice/foreignAgentSlice.ts";
 
 const ViewPassenger = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { setLoading } = useLoading();
+    const { hasPrivilege, hasRolePrivilege } = usePermission();
+    const isMobile = useMediaQuery("(max-width: 768px)");
 
     const { id } = useParams<{ id: string }>();
     const selectedPassenger = useSelector((state: RootState) => state.passenger.selectedPassenger);
+    const selectableJobOrders = useSelector((state: RootState) => state.foreignAgent.jobOrders);
+    console.log(selectableJobOrders);
 
     useEffect(() => {
         fetchPassenger();
+        if (selectedPassenger?.isCompletedDetails) {
+            fetchDesiredJobOrders();
+        }
     }, []);
+
+    const fetchDesiredJobOrders = async () => {
+        setLoading(true);
+        try {
+            const filters = {
+                desiredJobs: selectedPassenger?.desiredJobs,
+                desiredCountries: selectedPassenger?.desiredCountries,
+            };
+            const response = await dispatch(getAllJobOrders({ filters, selectJobOrderForPassenger: true }));
+            if (response.type === "foreignAgent/getAllJobOrders/rejected") {
+                toNotify("Error", response.payload.error || "Please contact system admin", "ERROR");
+            }
+        } catch (e) {
+            console.error(e);
+            toNotify("Something went wrong", "Please contact system admin", "WARNING");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchPassenger = async () => {
         setLoading(true);
@@ -64,7 +93,7 @@ const ViewPassenger = () => {
                 <Box className="h-full w-full">
                     <Box className="flex justify-between items-center w-full">
                         <Text fw={500}>Passenger Details</Text>
-                        {!selectedPassenger?.isCompletedDetails && (
+                        {!selectedPassenger?.isCompletedDetails && hasPrivilege("EDIT.PASSENGER") && (
                             <Button
                                 size="xs"
                                 variant="outline"
@@ -151,6 +180,14 @@ const ViewPassenger = () => {
                                 </Table.Td>
                             </Table.Tr>
                             <Table.Tr>
+                                <Table.Td fw={"bold"}>Sub Agent:</Table.Td>
+                                <Table.Td>{selectedPassenger?.subAgentData?.name || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Local Agent:</Table.Td>
+                                <Table.Td>{selectedPassenger?.localAgentData?.name || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
                                 <Table.Td fw={"bold"}>Remark:</Table.Td>
                                 <Table.Td>{selectedPassenger?.remark || "-"}</Table.Td>
                             </Table.Tr>
@@ -174,6 +211,100 @@ const ViewPassenger = () => {
                     </Table>
                 </Box>
             </Box>
+
+            {!isMobile && hasRolePrivilege(selectedPassenger?.passengerStatusData?.roles) && (
+                <>
+                    <Box display="flex" px="lg" py="md" className="items-center justify-between">
+                        <Box className="h-full w-full">
+                            <Stack gap={1}>
+                                <Divider mt="sm" />
+                                <Group my="lg">
+                                    {!selectedPassenger?.isCompletedDetails ? (
+                                        <Alert color="yellow" icon={<IconInfoCircle />}>
+                                            <Text c="yellow" fw={500}>
+                                                Please complete the passenger&#39;s information.
+                                            </Text>
+                                        </Alert>
+                                    ) : (
+                                        <Stack gap={1}>
+                                            <Text size="xl" fw="bold">
+                                                Select Job for Passenger
+                                            </Text>
+                                            <Text size="xs">Select job for passenger by job orders</Text>
+                                        </Stack>
+                                    )}
+                                </Group>
+                            </Stack>
+                        </Box>
+                    </Box>
+
+                    {selectedPassenger.isCompletedDetails && (
+                        <>
+                            <Box display="flex" px="lg" pb="md" className="items-center justify-between">
+                                <Box className="h-full w-full">
+                                    <SimpleGrid cols={4}>
+                                        <Group>
+                                            <Text fw="bold" size="sm">
+                                                Desired Jobs:
+                                            </Text>{" "}
+                                        </Group>
+                                        <Group>
+                                            {selectedPassenger?.desiredJobsData?.map((dj: any) => (
+                                                <Badge variant="outline" size="sm" key={dj._id}>
+                                                    {`${dj.name} - ${dj.specification} (${dj.ageLimit.from} - ${dj.ageLimit.to})`}
+                                                </Badge>
+                                            ))}
+                                        </Group>
+                                        <Group>
+                                            <Text fw="bold" size="sm">
+                                                Desired Countries:
+                                            </Text>
+                                        </Group>
+                                        <Group>
+                                            {selectedPassenger?.desiredCountriesData?.map((dj: any) => (
+                                                <Badge variant="outline" size="sm" key={dj._id}>
+                                                    {dj.name}
+                                                </Badge>
+                                            ))}
+                                        </Group>
+                                    </SimpleGrid>
+                                </Box>
+                            </Box>
+
+                            <Box display="flex" px="lg" py="md" className="items-center justify-between">
+                                <Box className="h-full w-full">
+                                    <Table>
+                                        <Table.Thead>
+                                            <Table.Tr>
+                                                <Table.Th>Job</Table.Th>
+                                                <Table.Th>Foreign Agent</Table.Th>
+                                                <Table.Th>Country</Table.Th>
+                                                <Table.Th>Vacancies</Table.Th>
+                                                <Table.Th>Actions</Table.Th>
+                                            </Table.Tr>
+                                        </Table.Thead>
+                                        <Table.Tbody>
+                                            {selectableJobOrders.map((sj: any) => (
+                                                <Table.Tr key={sj._id}>
+                                                    <Table.Td>{`${sj?.jobCatalogData?.name} - ${sj?.jobCatalogData?.specification} (${sj.jobCatalogData?.ageLimit.From || ""} - ${sj.jobCatalogData?.ageLimit.To || ""})`}</Table.Td>
+                                                    <Table.Td>{sj?.foreignAgentData?.name}</Table.Td>
+                                                    <Table.Td>{sj?.countryData?.name}</Table.Td>
+                                                    <Table.Td>{sj?.approvedVacancies}</Table.Td>
+                                                    <Table.Td>
+                                                        <Button size="xs" variant="outline">
+                                                            Select
+                                                        </Button>
+                                                    </Table.Td>
+                                                </Table.Tr>
+                                            ))}
+                                        </Table.Tbody>
+                                    </Table>
+                                </Box>
+                            </Box>
+                        </>
+                    )}
+                </>
+            )}
         </>
     );
 };

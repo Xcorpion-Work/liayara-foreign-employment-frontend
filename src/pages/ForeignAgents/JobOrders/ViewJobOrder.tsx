@@ -90,6 +90,14 @@ const ViewJobOrder = () => {
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
+                                    Country:
+                                </Table.Td>
+                                <Table.Td w={{ lg: "70%", sm: "50%" }}>
+                                    {selectedJobOrder?.foreignAgentData?.countryData?.name}
+                                </Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td w={{ lg: "30%", sm: "50%" }} fw={"bold"}>
                                     Job Order Approval Number:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
@@ -102,7 +110,7 @@ const ViewJobOrder = () => {
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
                                     <Group gap="xs" wrap="wrap">
-                                        {selectedJobOrder.facilities?.map((f: any, index: number) => (
+                                        {selectedJobOrder?.facilities?.map((f: any, index: number) => (
                                             <Badge key={index} variant="light">
                                                 {f}
                                             </Badge>
@@ -159,7 +167,7 @@ const ViewJobOrder = () => {
                                     Status:
                                 </Table.Td>
                                 <Table.Td w={{ lg: "70%", sm: "50%" }}>
-                                    <Badge color={JOB_ORDER_STATUS_COLORS[selectedJobOrder.jobOrderStatus]} radius="sm">
+                                    <Badge color={JOB_ORDER_STATUS_COLORS[selectedJobOrder?.jobOrderStatus]} radius="sm">
                                         {selectedJobOrder?.jobOrderStatus}
                                     </Badge>
                                 </Table.Td>
