@@ -43,8 +43,8 @@ const AddEditJobCatalog = () => {
             form.setValues({
                 name: selectedJobCatalog?.name || "",
                 specification: selectedJobCatalog?.specification || "",
-                from: selectedJobCatalog?.ageLimit?.from.toString() || null,
-                to: selectedJobCatalog?.ageLimit?.to.toString() || null,
+                from: selectedJobCatalog?.ageLimit?.from?.toString() || null,
+                to: selectedJobCatalog?.ageLimit?.to?.toString() || null,
                 gender: selectedJobCatalog?.gender || "",
                 doesChargeByPassenger: selectedJobCatalog?.doesChargeByPassenger || false,
             });
@@ -121,7 +121,7 @@ const AddEditJobCatalog = () => {
         }
     };
     const ageOptions = Array.from({ length: 85 }, (_, i) => {
-        const value = (i + 16).toString();
+        const value = (i + 16)?.toString();
         return { value, label: value };
     });
 

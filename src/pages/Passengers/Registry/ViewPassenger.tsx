@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Divider, Group, Stack, Table, Text } from "@mantine/core";
+import { Badge, Box, Button, Divider, Group, Table, Text } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,11 +9,13 @@ import toNotify from "../../../hooks/toNotify.tsx";
 import { getPassenger } from "../../../store/passengerSlice/passengerSlice.ts";
 import { datePreview, statusPreview } from "../../../helpers/preview.tsx";
 import { STATUS_COLORS } from "../../../utils/settings.ts";
+import { usePermission } from "../../../helpers/previlleges.ts";
 
 const ViewPassenger = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const { setLoading } = useLoading();
+    const { hasPrivilege, hasRolePrivilege } = usePermission();
 
     const { id } = useParams<{ id: string }>();
     const selectedPassenger = useSelector((state: RootState) => state.passenger.selectedPassenger);
@@ -39,24 +41,41 @@ const ViewPassenger = () => {
 
     return (
         <>
-            {/* Header */}
-            <Box display="flex" p="lg" className="items-center justify-between">
-                <Box className="h-full w-full">
-                    <Stack gap={1}>
-                        <Group justify="space-between" align="center" w="100%">
-                            <Group className="cursor-pointer" onClick={() => navigate(-1)}>
-                                <IconArrowLeft />
-                                <Text size="xl" fw="bold">
-                                    View Passenger
-                                </Text>
-                            </Group>
-                        </Group>
-                        <Group>
-                            <Text size="xs">View passenger details</Text>
-                        </Group>
-                        <Divider mt="sm" />
-                    </Stack>
-                </Box>
+            <Box p="lg">
+                <Group justify="space-between" align="center" mb="xs">
+                    <Group className="cursor-pointer" onClick={() => navigate(-1)}>
+                        <IconArrowLeft />
+                        <Text size="xl" fw="bold">
+                            View Passenger {selectedPassenger?.passengerId}
+                        </Text>
+                    </Group>
+
+                    {hasPrivilege("EDIT.PASSENGER") && !selectedPassenger?.isCompletedDetails && (
+                        <Button
+                            size="sm"
+                            onClick={() => navigate(`/app/passengers/registry/add-edit?id=${selectedPassenger._id}`)}
+                        >
+                            Complete Details
+                        </Button>
+                    )}
+                    {hasPrivilege("EDIT.PASSENGER") &&
+                        selectedPassenger?.isCompletedDetails &&
+                        hasRolePrivilege(selectedPassenger?.passengerStatusData?.roles) &&
+                        selectedPassenger.passengerStatus === "NEW_PASSENGER" && (
+                            <Button
+                                size="sm"
+                                color="violet"
+                                onClick={() => navigate(`/app/passengers/registry/select-job/${selectedPassenger._id}`)}
+                            >
+                                Select Job
+                            </Button>
+                        )}
+                </Group>
+
+                <Text size="xs" mb="sm">
+                    View passenger details
+                </Text>
+                <Divider />
             </Box>
 
             {/* Info Table */}
@@ -64,17 +83,6 @@ const ViewPassenger = () => {
                 <Box className="h-full w-full">
                     <Box className="flex justify-between items-center w-full">
                         <Text fw={500}>Passenger Details</Text>
-                        {!selectedPassenger?.isCompletedDetails && (
-                            <Button
-                                size="xs"
-                                variant="outline"
-                                onClick={() =>
-                                    navigate(`/app/passengers/registry/add-edit?id=${selectedPassenger._id}`)
-                                }
-                            >
-                                Complete Details
-                            </Button>
-                        )}
                     </Box>
 
                     <br />
@@ -149,6 +157,14 @@ const ViewPassenger = () => {
                                         {selectedPassenger?.abroadExperience ? "Yes" : "No"}
                                     </Badge>
                                 </Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Sub Agent:</Table.Td>
+                                <Table.Td>{selectedPassenger?.subAgentData?.name || "-"}</Table.Td>
+                            </Table.Tr>
+                            <Table.Tr>
+                                <Table.Td fw={"bold"}>Local Agent:</Table.Td>
+                                <Table.Td>{selectedPassenger?.localAgentData?.name || "-"}</Table.Td>
                             </Table.Tr>
                             <Table.Tr>
                                 <Table.Td fw={"bold"}>Remark:</Table.Td>

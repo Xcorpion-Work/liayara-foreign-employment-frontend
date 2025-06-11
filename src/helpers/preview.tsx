@@ -27,3 +27,10 @@ export const pageRange = (pageIndex: number, pageSize: number, total: number) =>
 export const statusPreview = (statusCode: string = ""): string => {
     return statusCode.replace(/_/g, " ");
 };
+
+export const amountPreviewWithCurrency = (amount: number, code: string): string => {
+    if (isNaN(amount)) {
+        return `${code} 0.00`;
+    }
+    return `${code} ${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+};

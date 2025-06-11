@@ -22,7 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../../../helpers/previlleges.ts";
-import { pageRange } from "../../../helpers/preview.tsx";
+import { pageRange, statusPreview } from "../../../helpers/preview.tsx";
 import { useMediaQuery } from "@mantine/hooks";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -33,6 +33,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { getPagedPassengers, updatePassenger } from "../../../store/passengerSlice/passengerSlice.ts";
 import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
+import { STATUS_COLORS } from "../../../utils/settings.ts";
+import { getAllPassengerStatus } from "../../../store/settingSlice/settingSlice.ts";
 
 const PassengersRegistry = () => {
     const navigate = useNavigate();
@@ -43,13 +45,15 @@ const PassengersRegistry = () => {
     const [totalRecords, setTotalRecords] = useState(0);
     const isMobile = useMediaQuery("(max-width: 768px)");
     const pagedPassengers = useSelector((state: RootState) => state.passenger.passengers);
+    const allPassengerStatus = useSelector((state: RootState) => state.setting.passengerStatus);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get("page") ?? "1");
     const searchQuery = searchParams.get("search") ?? "";
+    const passengerStatus = searchParams.get("passengerStatus") ?? "";
     const status = searchParams.get("status") ?? "";
 
-    const [searchValues, setSearchValues] = useState<any[]>([searchQuery, status]);
+    const [searchValues, setSearchValues] = useState<any[]>([searchQuery, passengerStatus, status]);
     const [sortField, setSortField] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -62,7 +66,18 @@ const PassengersRegistry = () => {
 
     useEffect(() => {
         fetchPassengers();
-    }, [page, searchQuery, status, sortField, sortOrder]);
+    }, [page, searchQuery, passengerStatus,status, sortField, sortOrder]);
+
+    useEffect(() => {
+        const fetchPassengerStatus = async () => {
+            await dispatch(getAllPassengerStatus({ status: true }));
+        };
+
+        fetchPassengerStatus();
+    }, []);
+
+    const searchablePassengerStatus = allPassengerStatus?.map((p: any) => ({ label: p.name, value: p.code }));
+    console.log(searchablePassengerStatus);
 
     const fetchPassengers = async () => {
         setLoading(true);
@@ -71,6 +86,7 @@ const PassengersRegistry = () => {
                 pageSize,
                 page,
                 searchQuery,
+                passengerStatus,
                 status,
                 sortField,
                 sortOrder,
@@ -128,7 +144,7 @@ const PassengersRegistry = () => {
     if (Array.isArray(pagedPassengers) && pagedPassengers.length > 0) {
         contentView = isMobile ? (
             <Stack gap="md">
-                {pagedPassengers.map((passenger: any, index: number) => (
+                {pagedPassengers?.map((passenger: any, index: number) => (
                     <Box key={passenger._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
@@ -158,7 +174,9 @@ const PassengersRegistry = () => {
                                                     <Menu.Item
                                                         leftSection={<IconPencil size={18} />}
                                                         onClick={() =>
-                                                            navigate(`/app/passengers/registry/add-edit?id=${passenger._id}`)
+                                                            navigate(
+                                                                `/app/passengers/registry/add-edit?id=${passenger._id}`
+                                                            )
                                                         }
                                                     >
                                                         Edit
@@ -166,7 +184,9 @@ const PassengersRegistry = () => {
                                                     <Menu.Item
                                                         leftSection={<IconMobiledataOff size={18} />}
                                                         color={passenger.status ? "red" : "green"}
-                                                        onClick={() => openConfirmModal(passenger._id, !passenger.status)}
+                                                        onClick={() =>
+                                                            openConfirmModal(passenger._id, !passenger.status)
+                                                        }
                                                     >
                                                         {passenger.status ? "Deactivate" : "Activate"}
                                                     </Menu.Item>
@@ -180,7 +200,9 @@ const PassengersRegistry = () => {
                                 <Text size="sm">Phone: {passenger.phone}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Text size="sm">Email: {passenger.email || "N/A"}</Text>
+                                <Badge variant="light" radius="sm" color={STATUS_COLORS[passenger.passengerStatus]}>
+                                    {statusPreview(passenger.passengerStatus)}
+                                </Badge>
                             </Group>
                             <Group mt="xs">
                                 <Badge radius="sm" color={passenger.status ? "green" : "red"}>
@@ -195,21 +217,46 @@ const PassengersRegistry = () => {
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th onClick={() => toggleSort("passengerId")}><Group gap={4}>Id {sortField === "passengerId" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
-                        <Table.Th onClick={() => toggleSort("name")}><Group gap={4}>Name {sortField === "name" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
-                        <Table.Th onClick={() => toggleSort("phone")}><Group gap={4}>Phone {sortField === "phone" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
-                        <Table.Th onClick={() => toggleSort("email")}><Group gap={4}>Email {sortField === "email" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
-                        <Table.Th onClick={() => toggleSort("status")}><Group gap={4}>Status {sortField === "status" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}</Group></Table.Th>
+                        <Table.Th onClick={() => toggleSort("passengerId")}>
+                            <Group gap={4}>
+                                Id{" "}
+                                {sortField === "passengerId" && (
+                                    <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>
+                                )}
+                            </Group>
+                        </Table.Th>
+                        <Table.Th onClick={() => toggleSort("name")}>
+                            <Group gap={4}>
+                                Name {sortField === "name" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
+                        <Table.Th onClick={() => toggleSort("phone")}>
+                            <Group gap={4}>
+                                Phone{" "}
+                                {sortField === "phone" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
+                        <Table.Th>Passenger Status</Table.Th>
+                        <Table.Th onClick={() => toggleSort("status")}>
+                            <Group gap={4}>
+                                Status{" "}
+                                {sortField === "status" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
+                            </Group>
+                        </Table.Th>
                         <Table.Th w="5%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {pagedPassengers.map((passenger: any, index: number) => (
+                    {pagedPassengers?.map((passenger: any, index: number) => (
                         <Table.Tr key={passenger._id || index}>
                             <Table.Td>{passenger.passengerId || "-"}</Table.Td>
                             <Table.Td>{passenger.name}</Table.Td>
                             <Table.Td>{passenger.phone}</Table.Td>
-                            <Table.Td>{passenger.email || "N/A"}</Table.Td>
+                            <Table.Td>
+                                <Badge radius="sm" variant="light" color={STATUS_COLORS[passenger.passengerStatus]}>
+                                    {statusPreview(passenger.passengerStatus)}
+                                </Badge>
+                            </Table.Td>
                             <Table.Td>
                                 <Badge color={passenger.status ? "green" : "red"} radius="sm">
                                     {passenger.status ? "ACTIVE" : "INACTIVE"}
@@ -239,15 +286,19 @@ const PassengersRegistry = () => {
                                                     <Menu.Item
                                                         leftSection={<IconPencil size={18} />}
                                                         onClick={() =>
-                                                            navigate(`/app/passengers/registry/add-edit?id=${passenger._id}`)
+                                                            navigate(
+                                                                `/app/passengers/registry/add-edit?id=${passenger._id}`
+                                                            )
                                                         }
                                                     >
-                                                        Edit
+                                                        {passenger.isCompletedDetails ? "Edit" : "Complete Details"}
                                                     </Menu.Item>
                                                     <Menu.Item
                                                         leftSection={<IconMobiledataOff size={18} />}
                                                         color={passenger.status ? "red" : "green"}
-                                                        onClick={() => openConfirmModal(passenger._id, !passenger.status)}
+                                                        onClick={() =>
+                                                            openConfirmModal(passenger._id, !passenger.status)
+                                                        }
                                                     >
                                                         {passenger.status ? "Deactivate" : "Activate"}
                                                     </Menu.Item>
@@ -299,7 +350,12 @@ const PassengersRegistry = () => {
                         <Divider mt="sm" />
                         <DynamicSearchBar
                             fields={[
-                                { type: "text", placeholder: "Passenger Id, Name, Phone, Email" },
+                                { type: "text", placeholder: "Passenger Id, Name, Phone" },
+                                {
+                                    type: "select",
+                                    placeholder: "Select Passenger Status",
+                                    options: searchablePassengerStatus,
+                                },
                                 {
                                     type: "select",
                                     placeholder: "Select a status",
@@ -312,7 +368,8 @@ const PassengersRegistry = () => {
                                 setSearchParams({
                                     page: "1",
                                     search: searchValues[0] || "",
-                                    status: searchValues[1] || "",
+                                    passengerStatus: searchValues[1] || "",
+                                    status: searchValues[2] || "",
                                 });
                             }}
                             onClear={() => {
