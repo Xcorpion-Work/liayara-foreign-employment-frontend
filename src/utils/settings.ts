@@ -26,3 +26,13 @@ export const JOB_ORDER_STATUS_COLORS: Record<string, string> = {
     ACTIVE: "green",
     EXPIRED: "red",
 };
+
+export const MAPPING_STATUS = ["PENDING", "COMPLETED", "VERIFYING", "VERIFIED", "REJECTED"];
+
+export const MAPPING_STATUS_COLORS: Record<string, string> = {
+    PENDING: "#f59e0b", // Amber (warning)
+    COMPLETED: "#10b981", // Emerald (success)
+    VERIFYING: "#3b82f6", // Blue (info)
+    VERIFIED: "#16a34a", // Green (confirmed success)
+    REJECTED: "#ef4444", // Red (error)
+};
