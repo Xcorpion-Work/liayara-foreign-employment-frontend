@@ -4,6 +4,7 @@ import axiosInstance from "../../interceptors/axiosInterceptor.ts";
 interface PassengerState {
     passengers: any;
     selectedPassenger: any;
+    jobs: any;
     status: string;
     error: string;
 }
@@ -11,6 +12,7 @@ interface PassengerState {
 const initialState: PassengerState = {
     passengers: [],
     selectedPassenger: {},
+    jobs: [],
     status: "idle",
     error: "",
 };
@@ -73,6 +75,31 @@ export const getPagedPassengers = createAsyncThunk(
     }
 );
 
+export const getAllJobsForPassenger = createAsyncThunk(
+    "passenger/getAllJobsForPassenger",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/passengers/jobs`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const selectJobForPassenger = createAsyncThunk(
+    "passenger/selectJobForPassenger",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/passengers/select-job`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+
 // Slice
 const passengerSlice = createSlice({
     name: "passenger",
@@ -96,6 +123,12 @@ const passengerSlice = createSlice({
         });
         builder.addCase(getPagedPassengers.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
             state.passengers = action.payload.response.result;
+        });
+        builder.addCase(getAllJobsForPassenger.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
+            state.jobs = action.payload.response;
+        });
+        builder.addCase(selectJobForPassenger.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload;
         });
     },
 });

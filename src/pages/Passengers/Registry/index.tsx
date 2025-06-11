@@ -76,7 +76,7 @@ const PassengersRegistry = () => {
         fetchPassengerStatus();
     }, []);
 
-    const searchablePassengerStatus = allPassengerStatus.map((p: any) => ({ label: p.name, value: p.code }));
+    const searchablePassengerStatus = allPassengerStatus?.map((p: any) => ({ label: p.name, value: p.code }));
     console.log(searchablePassengerStatus);
 
     const fetchPassengers = async () => {
@@ -144,7 +144,7 @@ const PassengersRegistry = () => {
     if (Array.isArray(pagedPassengers) && pagedPassengers.length > 0) {
         contentView = isMobile ? (
             <Stack gap="md">
-                {pagedPassengers.map((passenger: any, index: number) => (
+                {pagedPassengers?.map((passenger: any, index: number) => (
                     <Box key={passenger._id || index}>
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
@@ -247,7 +247,7 @@ const PassengersRegistry = () => {
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {pagedPassengers.map((passenger: any, index: number) => (
+                    {pagedPassengers?.map((passenger: any, index: number) => (
                         <Table.Tr key={passenger._id || index}>
                             <Table.Td>{passenger.passengerId || "-"}</Table.Td>
                             <Table.Td>{passenger.name}</Table.Td>
@@ -291,7 +291,7 @@ const PassengersRegistry = () => {
                                                             )
                                                         }
                                                     >
-                                                        Edit
+                                                        {passenger.isCompletedDetails ? "Edit" : "Complete Details"}
                                                     </Menu.Item>
                                                     <Menu.Item
                                                         leftSection={<IconMobiledataOff size={18} />}

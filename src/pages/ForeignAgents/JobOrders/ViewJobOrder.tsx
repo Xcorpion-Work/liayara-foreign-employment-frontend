@@ -181,10 +181,11 @@ const ViewJobOrder = () => {
                         <Table striped highlightOnHover>
                             <Table.Thead>
                                 <Table.Tr>
-                                    <Table.Th w={"25%"}>Job Catalog</Table.Th>
-                                    <Table.Th w={"25%"}>Vacancies</Table.Th>
-                                    <Table.Th w={"25%"}>Approved Vacancies</Table.Th>
-                                    <Table.Th w={"25%"}>
+                                    <Table.Th w={"35%"}>Job Catalog</Table.Th>
+                                    <Table.Th w={"15%"}>Vacancies</Table.Th>
+                                    <Table.Th w={"15%"}>Approved Vacancies</Table.Th>
+                                    <Table.Th w={"15%"}>Left Vacancies</Table.Th>
+                                    <Table.Th w={"20%"}>
                                         Salary ({selectedJobOrder?.foreignAgentData?.countryData?.currency?.code} -{" "}
                                         {selectedJobOrder?.foreignAgentData?.countryData?.currency?.symbol})
                                     </Table.Th>
@@ -196,16 +197,17 @@ const ViewJobOrder = () => {
                                         <Table.Tr key={j._id || i}>
                                             <Table.Td>
                                                 {j.jobCatalogData?.name} - {j.jobCatalogData?.specification} (
-                                                {j.ageLimit?.from} - {j.ageLimit?.to}) - {j?.gender}
+                                                {j.jobCatalogData?.ageLimit?.from} - {j?.jobCatalogData?.ageLimit?.to}) {j?.jobCatalogData?.gender}
                                             </Table.Td>
                                             <Table.Td>{j.vacancies}</Table.Td>
                                             <Table.Td>{j.approvedVacancies}</Table.Td>
+                                            <Table.Td>{j.leftVacancies}</Table.Td>
                                             <Table.Td>{amountPreview(j.salary)}</Table.Td>
                                         </Table.Tr>
                                     ))
                                 ) : (
                                     <Table.Tr>
-                                        <Table.Td colSpan={4}>
+                                        <Table.Td colSpan={5}>
                                             <div className="flex flex-col items-center justify-center py-6">
                                                 <IconDatabaseOff size={32} color="gray" />
                                                 <Text size="sm" c="dimmed" mt="sm">

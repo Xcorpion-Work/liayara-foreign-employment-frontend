@@ -220,6 +220,7 @@ const AddEditPassenger = () => {
             phone: (value) =>
                 !value ? "Phone number is required" : isValidPhone(value) ? null : "Phone number is invalid",
             altPhone: (value) => (value && !isValidPhone(value) ? "Phone number is invalid" : null),
+            address: isNotEmpty("Address is required"),
             subAgent: (value) => (passengerType === "Sub Agent" && !value ? "Sub agent is required" : null),
             localAgent: (value) => (passengerType === "Local Agent" && !value ? "Local agent is required" : null),
             height: (value) => {
@@ -370,6 +371,7 @@ const AddEditPassenger = () => {
                                 label="Number of Children"
                                 placeholder="Enter chilren count"
                                 allowNegative={false}
+                                disabled={form.values.maritalStatus === "Single"}
                                 {...form.getInputProps("numberOfChildren")}
                             />
                             <NumberInput
@@ -415,6 +417,7 @@ const AddEditPassenger = () => {
                                 label="Address"
                                 placeholder="Enter residential address"
                                 autosize
+                                withAsterisk
                                 minRows={2}
                                 {...form.getInputProps("address")}
                             />
@@ -426,17 +429,23 @@ const AddEditPassenger = () => {
 
                         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                             <MultiSelect
-                                data={jobs.map((job: any) => ({
-                                    label: `${job.name} - ${job.specification} (${job.ageLimit.from || ""} - ${job.ageLimit.to || ""})`,
-                                    value: job._id,
-                                }))}
-                                placeholder="Select a desired job"
+                                data={
+                                    jobs
+                                        ?.filter((job:any) => job.gender === form.values.gender || !form.values.gender)
+                                        ?.map((job:any) => ({
+                                            label: `${job.name}${job.specification ? ` - ${job.specification}` : ""}${job.ageLimit?.from || job.ageLimit?.to ? ` (${job.ageLimit.from || ""}-${job.ageLimit.to || ""})` : ""}`,
+                                            value: job._id,
+                                        })) || []
+                                }
+                                placeholder="Select desired jobs"
                                 label="Desired Job"
                                 withAsterisk={isEditMode}
+                                clearable
+                                searchable
                                 {...form.getInputProps("desiredJobs")}
                             />
                             <MultiSelect
-                                data={countries.map((country: any) => ({ label: country.name, value: country._id }))}
+                                data={countries?.map((country: any) => ({ label: country.name, value: country._id }))}
                                 placeholder="Select a desired country"
                                 label="Desired Country"
                                 withAsterisk={isEditMode}
@@ -469,7 +478,7 @@ const AddEditPassenger = () => {
                             />
                             {passengerType === "Sub Agent" && (
                                 <Select
-                                    data={subAgents.map((sa: any) => ({ label: sa.name, value: sa._id }))}
+                                    data={subAgents?.map((sa: any) => ({ label: sa.name, value: sa._id }))}
                                     value={passengerType}
                                     placeholder="Select a sub agent"
                                     label="Sub Agent"
@@ -479,7 +488,7 @@ const AddEditPassenger = () => {
                             )}
                             {passengerType === "Local Agent" && (
                                 <Select
-                                    data={localAgents.map((sa: any) => ({ label: sa.name, value: sa._id }))}
+                                    data={localAgents?.map((sa: any) => ({ label: sa.name, value: sa._id }))}
                                     placeholder="Select a local agent"
                                     value={passengerType}
                                     withAsterisk

@@ -510,7 +510,7 @@ const AddEditJobOrder = () => {
 
                         <Group mt="md">
                             <Button type="submit" ml="auto" disabled={!form.isDirty()}>
-                                {isEditMode ? "Update Foreign Agent" : "Create Foreign Agent"}
+                                {isEditMode ? "Update Job Order" : "Create Job Order"}
                             </Button>
                         </Group>
                     </form>
