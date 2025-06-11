@@ -75,6 +75,18 @@ export const getPagedPassengers = createAsyncThunk(
     }
 );
 
+export const getPagedPassengersInDocumentPhase = createAsyncThunk(
+    "passenger/getPagedPassengersInDocumentPhase",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/passengers/paged-passengers-document-phase`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
 export const getAllJobsForPassenger = createAsyncThunk(
     "passenger/getAllJobsForPassenger",
     async (payload: any, { rejectWithValue }) => {
@@ -122,6 +134,9 @@ const passengerSlice = createSlice({
             return action.payload;
         });
         builder.addCase(getPagedPassengers.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
+            state.passengers = action.payload.response.result;
+        });
+        builder.addCase(getPagedPassengersInDocumentPhase.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
             state.passengers = action.payload.response.result;
         });
         builder.addCase(getAllJobsForPassenger.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {

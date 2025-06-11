@@ -18,7 +18,7 @@ import logo from "../assets/logo1.png";
 import UserInfo from "./UserInfo.tsx";
 import {
     IconBriefcase,
-    IconCurrentLocation,
+    IconCurrentLocation, IconFileCertificate,
     IconLayoutDashboard,
     IconList,
     IconMoon,
@@ -106,13 +106,23 @@ const BasicAppShell = () => {
                             active={activePath === "passengers"}
                         >
                             {hasAnyPrivilege(["VIEW.PASSENGER", "CREATE.PASSENGER", "EDIT.PASSENGER"]) && (
-                                <NavLink
-                                    label="Registry"
-                                    leftSection={<IconList size="1rem" stroke={1.5} />}
-                                    variant="light"
-                                    onClick={() => handleNavLinkClick("passengers/registry")}
-                                    active={subActivePath === "passengers/registry"}
-                                />
+                                <>
+                                    <NavLink
+                                        label="Registry"
+                                        leftSection={<IconList size="1rem" stroke={1.5} />}
+                                        variant="light"
+                                        onClick={() => handleNavLinkClick("passengers/registry")}
+                                        active={subActivePath === "passengers/registry"}
+                                    />
+                                    <NavLink
+                                        label="Document Phase"
+                                        leftSection={<IconFileCertificate size="1rem" stroke={1.5} />}
+                                        variant="light"
+                                        onClick={() => handleNavLinkClick("passengers/document-phase")}
+                                        active={subActivePath === "passengers/document-phase"}
+                                    />
+                                </>
+
                             )}
                         </NavLink>
                     )}
