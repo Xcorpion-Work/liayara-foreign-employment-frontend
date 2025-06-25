@@ -24,12 +24,29 @@ export const fileUpload = createAsyncThunk("file/fileUpload", async (formData: F
     }
 });
 
+export const passengerDocumentFileUpload = createAsyncThunk("file/passengerDocumentFileUpload", async (formData: FormData, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`/files/passenger-document-file-upload`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
+    } catch (err: any) {
+        return rejectWithValue(err.response?.data || err.message);
+    }
+});
+
+
 const fileUploadSlice = createSlice({
     name: "fileUpload",
     initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(fileUpload.fulfilled, (_, action: PayloadAction<any>) => {
+            return action.payload.response;
+        });
+        builder.addCase(passengerDocumentFileUpload.fulfilled, (_, action: PayloadAction<any>) => {
             return action.payload.response;
         });
     },

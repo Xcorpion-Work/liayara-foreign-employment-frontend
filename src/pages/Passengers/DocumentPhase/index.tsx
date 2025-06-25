@@ -5,18 +5,21 @@ import {
     Button,
     Card,
     Divider,
+    FileInput,
+    Flex,
     Group,
     Menu,
+    Modal,
     Pagination,
     Stack,
     Table,
     Text,
 } from "@mantine/core";
-import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconEye } from "@tabler/icons-react";
+import { IconArrowLeft, IconDatabaseOff, IconDotsVertical, IconEye, IconUpload } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { usePermission } from "../../../helpers/previlleges.ts";
 import { pageRange, statusPreview } from "../../../helpers/preview.tsx";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLoading } from "../../../hooks/loadingContext.tsx";
@@ -25,7 +28,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store.ts";
 import { getPagedPassengersInDocumentPhase } from "../../../store/passengerSlice/passengerSlice.ts";
 import { DynamicSearchBar } from "../../../components/DynamicSearchBar.tsx";
-import { MAPPING_STATUS, MAPPING_STATUS_COLORS, STATUS_COLORS } from "../../../utils/settings.ts";
+import { MAPPING_STATUS, MAPPING_STATUS_COLORS } from "../../../utils/settings.ts";
+import { passengerDocumentFileUpload } from "../../../store/fileUploadSlice/fileUploadSlice.ts";
 
 const DocumentPhase = () => {
     const navigate = useNavigate();
@@ -36,7 +40,11 @@ const DocumentPhase = () => {
     const [totalRecords, setTotalRecords] = useState(0);
     const isMobile = useMediaQuery("(max-width: 768px)");
     const pagedPassengers = useSelector((state: RootState) => state.passenger.passengers);
-    console.log("pagedPassengers", pagedPassengers);
+
+    const [selectedPassenger, setSelectedPassenger] = useState<any>();
+    const [documents, setDocuments] = useState([]);
+    const [fileInputs, setFileInputs] = useState<{ [docId: string]: File | null }>({});
+    const [documentUploadModal, documentUploadModelHandler] = useDisclosure();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get("page") ?? "1");
@@ -84,6 +92,53 @@ const DocumentPhase = () => {
         }
     };
 
+    const handleFileChange = (docId: string, file: File | null) => {
+        setFileInputs((prev) => ({ ...prev, [docId]: file }));
+    };
+
+    const handleFileUpload = async (doc: any) => {
+        const file = fileInputs[doc._id];
+        if (!file) return;
+
+        setLoading(true);
+        documentUploadModelHandler.close();
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("type", "PASSENGER");
+        formData.append("relatedId", selectedPassenger);
+        formData.append("documentTypeId", doc?.documentTypeId?._id ?? doc?.documentTypeId);
+
+        try {
+            await dispatch(passengerDocumentFileUpload(formData));
+
+            // Get updated passengers directly
+            const filters = {
+                pageSize,
+                page,
+                searchQuery,
+                mappingStatus,
+                sortField,
+                sortOrder,
+            };
+
+            const response = await dispatch(getPagedPassengersInDocumentPhase({ filters }));
+            const updatedList = response?.payload?.response?.result || [];
+
+            const updatedPassenger = updatedList.find((p: any) => p.passengerId === selectedPassenger);
+
+            console.log("updatedPassenger", updatedPassenger);
+            setDocuments(updatedPassenger?.documents || []);
+        } catch (error) {
+            console.error(error);
+            toNotify("Error", "Failed to upload document", "ERROR");
+        } finally {
+            setFileInputs({});
+            documentUploadModelHandler.open(); // open modal after document is updated
+            setLoading(false);
+        }
+    };
+
     let contentView;
     if (Array.isArray(pagedPassengers) && pagedPassengers.length > 0) {
         contentView = isMobile ? (
@@ -93,7 +148,7 @@ const DocumentPhase = () => {
                         <Card withBorder p="md">
                             <Group justify="space-between" align="flex-start">
                                 <Text fw="bold">
-                                    {passenger?.passengerId || "-"} : {passenger?.name}
+                                    {passenger?.passengerData?.passengerId || "-"} : {passenger?.passengerData?.name}
                                 </Text>
                                 {hasAnyPrivilege(["VIEW.PASSENGER", "EDIT.PASSENGER"]) && (
                                     <Menu withinPortal position="bottom-end" shadow="md">
@@ -104,25 +159,40 @@ const DocumentPhase = () => {
                                         </Menu.Target>
                                         <Menu.Dropdown>
                                             {hasPrivilege("VIEW.PASSENGER") && (
+                                                <>
+                                                <Menu.Item
+                                                    leftSection={<IconUpload size={18} />}
+                                                    onClick={() => {
+                                                        setSelectedPassenger(passenger?.passengerId);
+                                                        setDocuments(passenger?.documents);
+                                                        documentUploadModelHandler.open();
+                                                    }}
+                                                >
+                                                    Upload
+                                                </Menu.Item>
                                                 <Menu.Item
                                                     leftSection={<IconEye size={18} />}
                                                     onClick={() =>
-                                                        navigate(`/app/passengers/registry/view/${passenger._id}`)
+                                                        navigate(`/app/passengers/document-phase/view/${passenger._id}`)
                                                     }
                                                 >
                                                     View
                                                 </Menu.Item>
+                                                </>
                                             )}
                                         </Menu.Dropdown>
                                     </Menu>
                                 )}
                             </Group>
                             <Group mt="xs">
-                                <Text size="sm">Phone: {passenger.phone}</Text>
+                                <Text size="sm">Phone: {passenger?.passengerData?.phone}</Text>
+                            </Group>{" "}
+                            <Group mt="xs">
+                                <Text size="sm">Email: {passenger?.passengerData?.email || "N/A"}</Text>
                             </Group>
                             <Group mt="xs">
-                                <Badge variant="light" radius="sm" color={STATUS_COLORS[passenger.passengerStatus]}>
-                                    {statusPreview(passenger.passengerStatus)}
+                                <Badge variant="light" radius="sm" color={MAPPING_STATUS_COLORS[passenger.mappingStatus]}>
+                                    {statusPreview(passenger.mappingStatus)}
                                 </Badge>
                             </Group>
                         </Card>
@@ -158,7 +228,7 @@ const DocumentPhase = () => {
                                 {sortField === "status" && <Text size="xs">{sortOrder === "asc" ? "▲" : "▼"}</Text>}
                             </Group>
                         </Table.Th>
-                        <Table.Th w="5%">Actions</Table.Th>
+                        <Table.Th w="15%">Actions</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -178,13 +248,29 @@ const DocumentPhase = () => {
                             </Table.Td>
                             <Table.Td>
                                 {hasAnyPrivilege(["VIEW.PASSENGER", "EDIT.PASSENGER"]) && (
-                                    <Button
-                                        size="xs"
-                                        leftSection={<IconEye size={20} />}
-                                        onClick={() => navigate(`/app/settings/role-management/view`)}
-                                    >
-                                        View
-                                    </Button>
+                                    <Flex gap="4">
+                                        <Button
+                                            size="xs"
+                                            color="violet"
+                                            leftSection={<IconUpload size={16} />}
+                                            onClick={() => {
+                                                setSelectedPassenger(passenger?.passengerId);
+                                                setDocuments(passenger?.documents);
+                                                documentUploadModelHandler.open();
+                                            }}
+                                        >
+                                            Upload
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            leftSection={<IconEye size={16} />}
+                                            onClick={() =>
+                                                navigate(`/app/passengers/document-phase/view/${passenger._id}`)
+                                            }
+                                        >
+                                            View
+                                        </Button>
+                                    </Flex>
                                 )}
                             </Table.Td>
                         </Table.Tr>
@@ -280,6 +366,60 @@ const DocumentPhase = () => {
                     </Pagination.Root>
                 </Group>
             </Box>
+
+            <Modal
+                opened={documentUploadModal}
+                onClose={documentUploadModelHandler.close}
+                title={
+                    <Text fw={500} size="lg">
+                        Upload Document
+                    </Text>
+                }
+                size={ isMobile ? "100%" : "70%"}
+            >
+                <Table>
+                    <Table.Thead>
+                        <Table.Tr>
+                            <Table.Th>Document Type</Table.Th>
+                            <Table.Th>Uploaded Document</Table.Th>
+                            <Table.Th>Select File</Table.Th>
+                            <Table.Th>Upload File</Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        {documents?.map((doc: any, index: number) => (
+                            <Table.Tr key={doc._id || index}>
+                                <Table.Td>{doc.documentTypeData?.name}</Table.Td>
+                                <Table.Td>{doc?.name || "N/A"}</Table.Td>
+                                <Table.Td>
+                                    <FileInput
+                                        size="xs"
+                                        disabled={doc?.isVerified}
+                                        clearable
+                                        placeholder="Select your file here"
+                                        accept={
+                                            doc.documentTypeData?.type === "Image"
+                                                ? "image/jpeg,image/jpg,image/png"
+                                                : ".pdf,.doc,.docx"
+                                        }
+                                        value={fileInputs[doc._id] || null}
+                                        onChange={(file) => handleFileChange(doc._id, file)}
+                                    />
+                                </Table.Td>
+                                <Table.Td>
+                                    <Button
+                                        size="xs"
+                                        disabled={doc?.isVerified || !fileInputs[doc._id]}
+                                        onClick={() => handleFileUpload(doc)}
+                                    >
+                                        Upload
+                                    </Button>
+                                </Table.Td>
+                            </Table.Tr>
+                        ))}
+                    </Table.Tbody>
+                </Table>
+            </Modal>
         </>
     );
 };
