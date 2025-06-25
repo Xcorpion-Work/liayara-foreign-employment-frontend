@@ -70,6 +70,7 @@ const AddEditPassenger = React.lazy(() => import("./pages/Passengers/Registry/Ad
 const ViewPassenger = React.lazy(() => import("./pages/Passengers/Registry/ViewPassenger.tsx"));
 const SelectJob = React.lazy(() => import("./pages/Passengers/Registry/SelectJob.tsx"));
 const DocumentPhase = React.lazy(()=> import("./pages/Passengers/DocumentPhase"))
+const ViewPassengerDocuments = React.lazy(()=> import("./pages/Passengers/DocumentPhase/ViewPassengerDocuments.tsx"))
 
 const router = createBrowserRouter([
     {
@@ -224,6 +225,10 @@ const router = createBrowserRouter([
             {
                 path: "passengers/document-phase",
                 element: <DocumentPhase />,
+            },
+            {
+                path: "passengers/document-phase/view/:id",
+                element: <ViewPassengerDocuments />,
             },
 
             // etc.

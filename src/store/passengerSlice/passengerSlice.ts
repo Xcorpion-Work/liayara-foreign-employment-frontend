@@ -4,6 +4,7 @@ import axiosInstance from "../../interceptors/axiosInterceptor.ts";
 interface PassengerState {
     passengers: any;
     selectedPassenger: any;
+    passengerDocumentsView: any;
     jobs: any;
     status: string;
     error: string;
@@ -12,6 +13,7 @@ interface PassengerState {
 const initialState: PassengerState = {
     passengers: [],
     selectedPassenger: {},
+    passengerDocumentsView: {},
     jobs: [],
     status: "idle",
     error: "",
@@ -87,6 +89,30 @@ export const getPagedPassengersInDocumentPhase = createAsyncThunk(
     }
 );
 
+export const getPassengerDocumentsView = createAsyncThunk(
+    "passenger/getPassengerDocumentsView",
+    async (id: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(`/passengers/view-passenger-documents/${id}`);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const updatePassengerDocuments = createAsyncThunk(
+    "passenger/updatePassengerDocuments",
+    async (payload: any, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.put(`/passengers/update-passenger-documents/${payload.id}`, payload);
+            return response.data;
+        } catch (err: any) {
+            throw rejectWithValue(err.response.data);
+        }
+    }
+);
+
 export const getAllJobsForPassenger = createAsyncThunk(
     "passenger/getAllJobsForPassenger",
     async (payload: any, { rejectWithValue }) => {
@@ -111,7 +137,6 @@ export const selectJobForPassenger = createAsyncThunk(
     }
 );
 
-
 // Slice
 const passengerSlice = createSlice({
     name: "passenger",
@@ -124,24 +149,42 @@ const passengerSlice = createSlice({
         builder.addCase(getPassenger.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
             state.selectedPassenger = action.payload.response;
         });
+        builder.addCase(
+            getPassengerDocumentsView.fulfilled,
+            (state: Draft<PassengerState>, action: PayloadAction<any>) => {
+                state.passengerDocumentsView = action.payload.response;
+            }
+        );
         builder.addCase(updatePassenger.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
             state.passengers = state.passengers.map((passenger: any) =>
                 passenger._id === action.payload.response._id ? action.payload.response : passenger
             );
             state.selectedPassenger = null;
         });
+        builder.addCase(
+            updatePassengerDocuments.fulfilled,
+            (state: Draft<PassengerState>, action: PayloadAction<any>) => {
+                state.passengerDocumentsView = action.payload.response.result;
+            }
+        );
         builder.addCase(createPassenger.fulfilled, (_, action: PayloadAction<any>) => {
             return action.payload;
         });
         builder.addCase(getPagedPassengers.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
             state.passengers = action.payload.response.result;
         });
-        builder.addCase(getPagedPassengersInDocumentPhase.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
-            state.passengers = action.payload.response.result;
-        });
-        builder.addCase(getAllJobsForPassenger.fulfilled, (state: Draft<PassengerState>, action: PayloadAction<any>) => {
-            state.jobs = action.payload.response;
-        });
+        builder.addCase(
+            getPagedPassengersInDocumentPhase.fulfilled,
+            (state: Draft<PassengerState>, action: PayloadAction<any>) => {
+                state.passengers = action.payload.response.result;
+            }
+        );
+        builder.addCase(
+            getAllJobsForPassenger.fulfilled,
+            (state: Draft<PassengerState>, action: PayloadAction<any>) => {
+                state.jobs = action.payload.response;
+            }
+        );
         builder.addCase(selectJobForPassenger.fulfilled, (_, action: PayloadAction<any>) => {
             return action.payload;
         });
